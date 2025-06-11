@@ -1,10 +1,10 @@
 {
   "name": "@aztec/l1-contracts",
-  "version": "1.0.0-nightly.20250610",
+  "version": "1.0.0-nightly.20250611",
   "license": "Apache-2.0",
   "description": "Aztec contracts for the Ethereum mainnet and testnets",
   "devDependencies": {
-    "solhint": "https://github.com/LHerskind/solhint#master"
+    "solhint": "5.1.0"
   },
   "scripts": {
     "format": "forge fmt",
