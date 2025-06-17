@@ -5,18 +5,12 @@ pragma solidity >=0.8.27;
 import {BlockHeaderValidationFlags} from "@aztec/core/interfaces/IRollup.sol";
 import {ValidatorSelectionStorage} from "@aztec/core/interfaces/IValidatorSelection.sol";
 import {SampleLib} from "@aztec/core/libraries/crypto/SampleLib.sol";
-import {
-  SignatureLib,
-  Signature,
-  CommitteeAttestation
-} from "@aztec/core/libraries/crypto/SignatureLib.sol";
 import {Errors} from "@aztec/core/libraries/Errors.sol";
-import {
-  AddressSnapshotLib,
-  SnapshottedAddressSet
-} from "@aztec/core/libraries/staking/AddressSnapshotLib.sol";
-import {StakingLib} from "@aztec/core/libraries/staking/StakingLib.sol";
+import {StakingLib} from "@aztec/core/libraries/rollup/StakingLib.sol";
 import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol";
+import {
+  SignatureLib, Signature, CommitteeAttestation
+} from "@aztec/shared/libraries/SignatureLib.sol";
 import {MessageHashUtils} from "@oz/utils/cryptography/MessageHashUtils.sol";
 import {SafeCast} from "@oz/utils/math/SafeCast.sol";
 import {Checkpoints} from "@oz/utils/structs/Checkpoints.sol";
@@ -29,7 +23,6 @@ library ValidatorSelectionLib {
   using TimeLib for Timestamp;
   using TimeLib for Epoch;
   using TimeLib for Slot;
-  using AddressSnapshotLib for SnapshottedAddressSet;
   using Checkpoints for Checkpoints.Trace224;
   using SafeCast for *;
 
@@ -93,11 +86,13 @@ library ValidatorSelectionLib {
     bytes32 _digest,
     BlockHeaderValidationFlags memory _flags
   ) internal {
-    (bytes32 committeeCommitment, uint256 committeeSize) = getCommitteeCommitmentAt(_epochNumber);
+    (bytes32 committeeCommitment, uint256 targetCommitteeSize) =
+      getCommitteeCommitmentAt(_epochNumber);
 
-    // @todo Consider getting rid of this option.
-    // If the proposer is open, we allow anyone to propose without needing any signatures
-    if (committeeSize == 0) {
+    // If the rollup is *deployed* with a target committee size of 0, we skip the validation.
+    // Note: This generally only happens in test setups; In production, the target committee is non-zero,
+    // and one can see in `sampleValidators` that we will revert if the target committee size is not met.
+    if (targetCommitteeSize == 0) {
       return;
     }
 
@@ -106,23 +101,25 @@ library ValidatorSelectionLib {
     }
 
     require(
-      _attestations.length == committeeSize,
-      Errors.ValidatorSelection__InvalidAttestationsLength(committeeSize, _attestations.length)
+      _attestations.length == targetCommitteeSize,
+      Errors.ValidatorSelection__InvalidAttestationsLength(
+        targetCommitteeSize, _attestations.length
+      )
     );
 
     // We determine who the proposer from indexing into the provided attestations array, we then recover their proposer
     // address from storage
     uint256 proposerIndex =
-      computeProposerIndex(_epochNumber, _slot, getSampleSeed(_epochNumber), committeeSize);
+      computeProposerIndex(_epochNumber, _slot, getSampleSeed(_epochNumber), targetCommitteeSize);
 
     // The user controls this value, however, if a false value is provided, the recalculated committee commitment will
     // be incorrect, and we will revert.
 
     // Validate the attestations
-    uint256 needed = committeeSize * 2 / 3 + 1;
+    uint256 needed = targetCommitteeSize * 2 / 3 + 1;
     uint256 validAttestations = 0;
 
-    address[] memory reconstructedCommittee = new address[](committeeSize);
+    address[] memory reconstructedCommittee = new address[](targetCommitteeSize);
     bool proposerVerified = false;
 
     bytes32 digest = _digest.toEthSignedMessageHash();
@@ -195,18 +192,20 @@ library ValidatorSelectionLib {
     uint256 validatorSetSize = StakingLib.getAttesterCountAtTime(Timestamp.wrap(ts));
     uint256 targetCommitteeSize = store.targetCommitteeSize;
 
-    bool smallerCommittee = validatorSetSize <= targetCommitteeSize;
+    require(
+      validatorSetSize >= targetCommitteeSize,
+      Errors.ValidatorSelection__InsufficientCommitteeSize(validatorSetSize, targetCommitteeSize)
+    );
 
-    // If we have less validators than the target committee size, we just return the full set
-    if (smallerCommittee) {
-      return StakingLib.getAttestersAtTime(Timestamp.wrap(ts));
-    } else {
-      // Sample the larger committee
-      uint256[] memory indices =
-        SampleLib.computeCommittee(targetCommitteeSize, validatorSetSize, _seed);
-
-      return StakingLib.getAttestersFromIndicesAtTime(Timestamp.wrap(ts), indices);
+    if (targetCommitteeSize == 0) {
+      return new address[](0);
     }
+
+    // Sample the larger committee
+    uint256[] memory indices =
+      SampleLib.computeCommittee(targetCommitteeSize, validatorSetSize, _seed);
+
+    return StakingLib.getAttestersFromIndicesAtTime(Timestamp.wrap(ts), indices);
   }
 
   /**
@@ -242,14 +241,7 @@ library ValidatorSelectionLib {
         computeCommitteeCommitment(sampleValidators(_epochNumber, getSampleSeed(_epochNumber)));
     }
 
-    // We do not want to recalculate this each time
-    uint32 ts = epochToSampleTime(_epochNumber);
-    committeeSize = StakingLib.getAttesterCountAtTime(Timestamp.wrap(ts));
-    if (committeeSize > store.targetCommitteeSize) {
-      committeeSize = store.targetCommitteeSize;
-    }
-
-    return (committeeCommitment, committeeSize);
+    return (committeeCommitment, store.targetCommitteeSize);
   }
 
   /**
