@@ -7,6 +7,7 @@ libs = ['lib']
 solc = "0.8.27"
 evm_version = 'cancun'
 optimizer = true
+optimizer_runs = 10
 
 match_path = "test/**/*.t.sol"
 # Helper to get all the contract names in the src/governance and src/core directories
@@ -52,7 +53,7 @@ fs_permissions = [
   {access = "read", path = "./test/fixtures/boosted_rewards/activity_scores.json"}
 ]
 
-no_match_contract="(ScreamAndShoutTest|UniswapPortalTest)"
+no_match_contract="(ScreamAndShoutTest|UniswapPortalTest|MerkleCheck)"
 
 [fmt]
 line_length = 100
