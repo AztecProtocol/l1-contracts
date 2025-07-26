@@ -92,8 +92,8 @@ library HonkVerificationKey {
                y: uint256(0x1643515b25c47e776b6d99eb3ce8b4613b209886681842e5c39ee92efe72c272)
             }),
             t3: Honk.G1Point({ 
-               x: uint256(0x09d569252b4b229e483b00b1e67384ac4db29395d32e28c82f8b73983d30ac6b),
-               y: uint256(0x2c47d5809e56ba32be655d4177db195bb450fd12587756c4b85b6506a7844ddb)
+               x: uint256(0x20db30b046148206e1ce5d50fe2559d2e60dbe3472bb605600c6e01d0965df82),
+               y: uint256(0x0d5d5be706d7b3b8a7d3d02043ef0e324676187770f682c791ce1cd3deadc058)
             }),
             t4: Honk.G1Point({ 
                x: uint256(0x1f59b85de9212665c6c3e59fb35ab6609d72f5ad8007449dc8019a5886fad88f),
