@@ -68,8 +68,8 @@ library HonkVerificationKey {
                y: uint256(0x28bf9f9b979d273ae5577d24a76e13c83643fc1a957e090ea54cffbfe91f36b3)
             }),
             s1: Honk.G1Point({ 
-               x: uint256(0x09b964172f864b545e7b823e282729898d4a30629017630aea5087ac443c25a1),
-               y: uint256(0x00dfac5c45419a30ae002477ffd5184996affcf63ea58e94924184849765a3ba)
+               x: uint256(0x1998ad181d35eb0bcdfaeb835ef150645085eb94189d05da62160507e0318d39),
+               y: uint256(0x0da35493a5881f97edf1fdc7f9b003ab1d21e925106bb15f92c6da9e678db1c4)
             }),
             s2: Honk.G1Point({ 
                x: uint256(0x0873705797c37e9b8b23b95bc3832b91917f18c106b809462d6d5975e0308c26),
@@ -1248,12 +1248,11 @@ library RelationsLib {
 
         // Putting it all together...
         evals[16] = ap.adjacent_values_match_if_adjacent_indices_match_and_next_access_is_a_read_operation
-            * (wire(p, WIRE.Q_ARITH)) * (wire(p, WIRE.Q_MEMORY) * domainSep); // deg 5 or 8
-        evals[17] =
-            ap.index_is_monotonically_increasing * (wire(p, WIRE.Q_ARITH)) * (wire(p, WIRE.Q_MEMORY) * domainSep); // deg 4
-        evals[18] = ap.next_gate_access_type_is_boolean * (wire(p, WIRE.Q_ARITH)) * (wire(p, WIRE.Q_MEMORY) * domainSep); // deg 4 or 6
+            * (wire(p, WIRE.Q_O)) * (wire(p, WIRE.Q_MEMORY) * domainSep); // deg 5 or 8
+        evals[17] = ap.index_is_monotonically_increasing * (wire(p, WIRE.Q_O)) * (wire(p, WIRE.Q_MEMORY) * domainSep); // deg 4
+        evals[18] = ap.next_gate_access_type_is_boolean * (wire(p, WIRE.Q_O)) * (wire(p, WIRE.Q_MEMORY) * domainSep); // deg 4 or 6
 
-        ap.RAM_consistency_check_identity = ap.access_check * (wire(p, WIRE.Q_ARITH)); // deg 3 or 9
+        ap.RAM_consistency_check_identity = ap.access_check * (wire(p, WIRE.Q_O)); // deg 3 or 9
 
         /**
          * RAM Timestamp Consistency Check
