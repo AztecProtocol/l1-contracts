@@ -6,7 +6,7 @@ import {Rollup} from "@aztec/core/Rollup.sol";
 import {IValidatorSelection} from "@aztec/core/interfaces/IValidatorSelection.sol";
 import {Slot, Epoch} from "@aztec/core/libraries/TimeLib.sol";
 import {Slasher, IPayload} from "@aztec/core/slashing/Slasher.sol";
-import {SlashingProposer} from "@aztec/core/slashing/SlashingProposer.sol";
+import {EmpireSlashingProposer} from "@aztec/core/slashing/EmpireSlashingProposer.sol";
 import {RewardDistributor} from "@aztec/governance/RewardDistributor.sol";
 import {MultiAdder, CheatDepositArgs} from "@aztec/mock/MultiAdder.sol";
 import {TestERC20} from "@aztec/mock/TestERC20.sol";
@@ -23,7 +23,7 @@ import {IValidatorSelection} from "@aztec/core/interfaces/IValidatorSelection.so
 import {Status, AttesterView} from "@aztec/core/interfaces/IStaking.sol";
 import {Errors} from "@aztec/governance/libraries/Errors.sol";
 
-import {SlashingProposer} from "@aztec/core/slashing/SlashingProposer.sol";
+import {EmpireSlashingProposer} from "@aztec/core/slashing/EmpireSlashingProposer.sol";
 
 import {Slot, Epoch} from "@aztec/core/libraries/TimeLib.sol";
 import {TimeCheater} from "../../../staking/TimeCheater.sol";
@@ -40,7 +40,7 @@ contract SlashingTest is TestBase {
   Rollup internal rollup;
   Slasher internal slasher;
   SlashFactory internal slashFactory;
-  SlashingProposer internal slashingProposer;
+  EmpireSlashingProposer internal slashingProposer;
   TimeCheater internal timeCheater;
 
   function _createPayloadAndSignalForSlashing(address[] memory _attesters, uint96 _slashAmount, uint256 _howMany)
@@ -56,10 +56,11 @@ contract SlashingTest is TestBase {
 
     address[] memory offenders = new address[](_howMany);
     uint96[] memory amounts = new uint96[](_howMany);
-    uint256[] memory offenses = new uint256[](_howMany);
+    uint128[][] memory offenses = new uint128[][](_howMany);
     for (uint256 i = 0; i < _howMany; i++) {
       offenders[i] = _attesters[i];
       amounts[i] = _slashAmount;
+      offenses[i] = new uint128[](0); // Empty array of offenses for each validator
     }
 
     IPayload payload = slashFactory.createSlashPayload(offenders, amounts, offenses);
@@ -110,7 +111,7 @@ contract SlashingTest is TestBase {
     testERC20 = builder.getConfig().testERC20;
 
     slasher = Slasher(rollup.getSlasher());
-    slashingProposer = slasher.PROPOSER();
+    slashingProposer = EmpireSlashingProposer(slasher.PROPOSER());
     slashFactory = new SlashFactory(IValidatorSelection(address(rollup)));
 
     timeCheater = new TimeCheater(
