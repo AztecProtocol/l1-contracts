@@ -1,35 +1,29 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.27;
 
+import {G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
 import {Errors} from "./Errors.sol";
 
 /**
- * If the number of validators in the rollup is 0, and the number of validators in the queue is less than `bootstrapValidatorSetSize`,
- * then `getEntryQueueFlushSize` will return 0.
- *
- * If the number of validators in the rollup is 0, and the number of validators in the queue is greater than or equal to `bootstrapValidatorSetSize`,
- * then `getEntryQueueFlushSize` will return `bootstrapFlushSize`.
- *
- * If the number of validators in the rollup is greater than 0 and less than `bootstrapValidatorSetSize`, then `getEntryQueueFlushSize` will return `bootstrapFlushSize`.
- *
- * If the number of validators in the rollup is greater than or equal to `bootstrapValidatorSetSize`, then `getEntryQueueFlushSize` will return Max( `normalFlushSizeMin`, `activeAttesterCount` / `normalFlushSizeQuotient`).
- *
- * NOTE: We will NEVER flush more than `MAX_QUEUE_FLUSH_SIZE` validators: it is applied as a Max at the end of every calculation.
- * This is to prevent a situation where flushing the queue would exceed the block gas limit.
+ * @notice A struct containing the arguments needed for GSE.deposit(...) function
+ * @dev Used to store validator information in the entry queue before they are processed
  */
-struct StakingQueueConfig {
-  uint256 bootstrapValidatorSetSize;
-  uint256 bootstrapFlushSize;
-  uint256 normalFlushSizeMin;
-  uint256 normalFlushSizeQuotient;
-}
-
 struct DepositArgs {
   address attester;
   address withdrawer;
-  bool onCanonical;
+  G1Point publicKeyInG1;
+  G2Point publicKeyInG2;
+  G1Point proofOfPossession;
+  bool moveWithLatestRollup;
 }
 
+/**
+ * @notice A queue data structure for managing validator deposits
+ * @dev Implements a FIFO queue using a mapping and two pointers
+ * @param validators Mapping from queue index to validator deposit arguments
+ * @param first Index of the first element in the queue (head)
+ * @param last Index of the next available slot in the queue (tail)
+ */
 struct StakingQueue {
   mapping(uint256 index => DepositArgs validator) validators;
   uint128 first;
@@ -37,10 +31,6 @@ struct StakingQueue {
 }
 
 library StakingQueueLib {
-  // This is a HARD CAP. We will never attempt to flush more than this number of validators,
-  // because it starts to butt up against the block gas limit.
-  uint256 public constant MAX_QUEUE_FLUSH_SIZE = 150;
-
   function init(StakingQueue storage self) internal {
     self.first = 1;
     self.last = 1;
@@ -50,12 +40,21 @@ library StakingQueueLib {
     StakingQueue storage self,
     address _attester,
     address _withdrawer,
-    bool _onCanonical
+    G1Point memory _publicKeyInG1,
+    G2Point memory _publicKeyInG2,
+    G1Point memory _proofOfPossession,
+    bool _moveWithLatestRollup
   ) internal returns (uint256) {
     uint128 queueLocation = self.last;
 
-    self.validators[queueLocation] =
-      DepositArgs({attester: _attester, withdrawer: _withdrawer, onCanonical: _onCanonical});
+    self.validators[queueLocation] = DepositArgs({
+      attester: _attester,
+      withdrawer: _withdrawer,
+      publicKeyInG1: _publicKeyInG1,
+      publicKeyInG2: _publicKeyInG2,
+      proofOfPossession: _proofOfPossession,
+      moveWithLatestRollup: _moveWithLatestRollup
+    });
     self.last = queueLocation + 1;
 
     return queueLocation;
