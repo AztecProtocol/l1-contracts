@@ -2,12 +2,12 @@
 // Copyright 2024 Aztec Labs.
 pragma solidity >=0.8.27;
 
-import {DecoderBase} from "../base/DecoderBase.sol";
+import {DecoderBase} from "./base/DecoderBase.sol";
 
 import {Registry} from "@aztec/governance/Registry.sol";
 import {FeeJuicePortal} from "@aztec/core/messagebridge/FeeJuicePortal.sol";
 import {TestERC20} from "@aztec/mock/TestERC20.sol";
-import {TestConstants} from "../harnesses/TestConstants.sol";
+import {TestConstants} from "./harnesses/TestConstants.sol";
 import {RewardDistributor} from "@aztec/governance/RewardDistributor.sol";
 import {ProposeArgs, ProposeLib} from "@aztec/core/libraries/rollup/ProposeLib.sol";
 
@@ -16,9 +16,9 @@ import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol
 import {Errors} from "@aztec/core/libraries/Errors.sol";
 import {ProposeArgs, ProposePayload, OracleInput, ProposeLib} from "@aztec/core/libraries/rollup/ProposeLib.sol";
 
-import {RollupBase, IInstance} from "../base/RollupBase.sol";
-import {RollupBuilder} from "../builder/RollupBuilder.sol";
-import {TimeCheater} from "../staking/TimeCheater.sol";
+import {RollupBase, IInstance} from "./base/RollupBase.sol";
+import {RollupBuilder} from "./builder/RollupBuilder.sol";
+import {TimeCheater} from "./staking/TimeCheater.sol";
 import {Bps, BpsLib} from "@aztec/core/libraries/rollup/RewardLib.sol";
 import {
   AttestationLib,
@@ -33,6 +33,8 @@ import {AttestationLibHelper} from "@test/helper_libraries/AttestationLibHelper.
 import {Ownable} from "@oz/access/Ownable.sol";
 import {IInbox} from "@aztec/core/interfaces/messagebridge/IInbox.sol";
 import {Signature} from "@aztec/shared/libraries/SignatureLib.sol";
+import {BlockLog} from "@aztec/core/libraries/compressed-data/BlockLog.sol";
+import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 // solhint-disable comprehensive-interface
 
 struct Block {
@@ -43,11 +45,12 @@ struct Block {
   Signature attestationsAndSignersSignature;
 }
 
-contract Tmnt223Test is RollupBase {
+contract Tmnt419Test is RollupBase {
   using ProposeLib for ProposeArgs;
   using TimeLib for Timestamp;
   using TimeLib for Slot;
   using TimeLib for Epoch;
+  using stdStorage for StdStorage;
 
   Registry internal registry;
   TestERC20 internal testERC20;
@@ -100,11 +103,11 @@ contract Tmnt223Test is RollupBase {
     _;
   }
 
-  function test_deadlock() public setUpFor("empty_block_1") {
+  function test_getStorageTempBlockLog() public setUpFor("empty_block_1") {
     skipBlobCheck(address(rollup));
     timeCheater.cheat__progressSlot();
 
-    for (uint256 i = 0; i < 10; i++) {
+    for (uint256 i = 0; i < 100; i++) {
       Block memory l2Block = getBlock();
       rollup.propose(
         l2Block.proposeArgs,
@@ -114,26 +117,39 @@ contract Tmnt223Test is RollupBase {
         l2Block.blobInputs
       );
       timeCheater.cheat__progressSlot();
+
+      stdstore.enable_packed_slots().target(address(rollup)).sig("getProvenBlockNumber()").checked_write(
+        rollup.getPendingBlockNumber()
+      );
     }
 
-    // Now say that we alter the mana limit! Ensure that we can still produce blocks!
-    MANA_TARGET = 1e6;
-    vm.expectEmit(true, true, true, true, address(rollup.getInbox()));
-    emit IInbox.InboxSynchronized(12);
-    vm.prank(Ownable(address(rollup)).owner());
-    rollup.updateManaTarget(MANA_TARGET);
+    assertEq(rollup.getProvenBlockNumber(), 100);
 
-    Block memory nonEmptyBlock = getBlock();
-    rollup.propose(
-      nonEmptyBlock.proposeArgs,
-      AttestationLibHelper.packAttestations(nonEmptyBlock.attestations),
-      nonEmptyBlock.signers,
-      nonEmptyBlock.attestationsAndSignersSignature,
-      nonEmptyBlock.blobInputs
+    // Read something so old that it should be stale
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        Errors.Rollup__UnavailableTempBlockLog.selector, 1, 100, 1 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
+      )
     );
+    rollup.getBlock(1);
 
-    assertEq(rollup.getPendingBlockNumber(), 11);
-    assertEq(rollup.getInbox().getInProgress(), 13);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        Errors.Rollup__UnavailableTempBlockLog.selector, 100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2), 100, 100
+      )
+    );
+    rollup.getBlock(100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2));
+
+    // Read something current
+    rollup.getBlock(rollup.getPendingBlockNumber());
+
+    // Try to read into the future see a failure
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        Errors.Rollup__UnavailableTempBlockLog.selector, 101, 100, 101 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
+      )
+    );
+    rollup.getBlock(101);
   }
 
   function getBlock() internal view returns (Block memory) {
