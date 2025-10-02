@@ -1,6 +1,3 @@
-# WARNING this is a unofficial hacky fix
-install: `yarn add aztec-l1-contracts-hardhat-fix`
-
 # L1 Contracts
 
 This directory contains the Ethereum smart contracts for progressing the state of the Rollup.
