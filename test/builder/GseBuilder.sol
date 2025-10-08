@@ -49,6 +49,11 @@ contract GSEBuilder is TestBase {
     config.flags.checkProofOfPossession = false;
   }
 
+  function setTestERC20(TestERC20 _testERC20) public returns (GSEBuilder) {
+    config.testERC20 = _testERC20;
+    return this;
+  }
+
   function setOpenFloodgates(bool _openFloodgates) public returns (GSEBuilder) {
     config.flags.openFloodgates = _openFloodgates;
     return this;

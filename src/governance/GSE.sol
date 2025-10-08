@@ -14,6 +14,7 @@ import {BN254Lib, G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
 import {Timestamp} from "@aztec/shared/libraries/TimeMath.sol";
 import {Ownable} from "@oz/access/Ownable.sol";
 import {IERC20} from "@oz/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@oz/token/ERC20/utils/SafeERC20.sol";
 import {SafeCast} from "@oz/utils/math/SafeCast.sol";
 import {Checkpoints} from "@oz/utils/structs/Checkpoints.sol";
 
@@ -116,6 +117,7 @@ interface IGSE is IGSECore {
  * then have the deployer `setGovernance`, and then `transferOwnership` to Governance.
  */
 contract GSECore is IGSECore, Ownable {
+  using SafeERC20 for IERC20;
   using AddressSnapshotLib for SnapshottedAddressSet;
   using SafeCast for uint256;
   using SafeCast for uint224;
@@ -336,10 +338,11 @@ contract GSECore is IGSECore, Ownable {
     delegation.delegate(recipientInstance, _attester, recipientInstance);
     delegation.increaseBalance(recipientInstance, _attester, ACTIVATION_THRESHOLD);
 
-    ASSET.transferFrom(msg.sender, address(this), ACTIVATION_THRESHOLD);
+    ASSET.safeTransferFrom(msg.sender, address(this), ACTIVATION_THRESHOLD);
 
     Governance gov = getGovernance();
-    ASSET.approve(address(gov), ACTIVATION_THRESHOLD);
+    ASSET.safeApprove(address(gov), 0);
+    ASSET.safeApprove(address(gov), ACTIVATION_THRESHOLD);
     gov.deposit(address(this), ACTIVATION_THRESHOLD);
 
     emit Deposit(recipientInstance, _attester, _withdrawer);
@@ -469,8 +472,9 @@ contract GSECore is IGSECore, Ownable {
     Governance gov = getGovernance();
     uint256 amount = gov.getConfiguration().proposeConfig.lockAmount;
 
-    ASSET.transferFrom(msg.sender, address(this), amount);
-    ASSET.approve(address(gov), amount);
+    ASSET.safeTransferFrom(msg.sender, address(this), amount);
+    ASSET.safeApprove(address(gov), 0);
+    ASSET.safeApprove(address(gov), amount);
 
     gov.deposit(address(this), amount);
 
