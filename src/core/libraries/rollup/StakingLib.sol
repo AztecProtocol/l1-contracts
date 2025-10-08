@@ -181,7 +181,7 @@ library StakingLib {
     delete store.exits[_attester];
 
     store.gse.finalizeWithdraw(exit.withdrawalId);
-    store.stakingAsset.transfer(exit.recipientOrWithdrawer, exit.amount);
+    store.stakingAsset.safeTransfer(exit.recipientOrWithdrawer, exit.amount);
 
     emit IStakingCore.WithdrawFinalized(_attester, exit.recipientOrWithdrawer, exit.amount);
   }
@@ -282,7 +282,7 @@ library StakingLib {
     require(!store.exits[_attester].exists, Errors.Staking__AlreadyExiting(_attester));
     uint256 amount = store.gse.ACTIVATION_THRESHOLD();
 
-    store.stakingAsset.transferFrom(msg.sender, address(this), amount);
+    store.stakingAsset.safeTransferFrom(msg.sender, address(this), amount);
     store.entryQueue.enqueue(
       _attester, _withdrawer, _publicKeyInG1, _publicKeyInG2, _proofOfPossession, _moveWithLatestRollup
     );
@@ -327,8 +327,11 @@ library StakingLib {
 
     uint256 queueLength = store.entryQueue.length();
     uint256 numToDequeue = Math.min(maxAddableValidators, queueLength);
-    // Approve the GSE to spend the total stake amount needed for all deposits.
-    store.stakingAsset.approve(address(store.gse), amount * numToDequeue);
+    uint256 totalAmount = amount * numToDequeue;
+    if (totalAmount > 0) {
+      store.stakingAsset.safeApprove(address(store.gse), 0);
+      store.stakingAsset.safeApprove(address(store.gse), totalAmount);
+    }
     for (uint256 i = 0; i < numToDequeue; i++) {
       DepositArgs memory args = store.entryQueue.dequeue();
       (bool success, bytes memory data) = address(store.gse).call(
@@ -354,13 +357,15 @@ library StakingLib {
         //    where someone could drain the queue without making any deposits.
         //    We can safely assume data.length == 0 means out of gas since we only call trusted GSE contract.
         require(data.length > 0, Errors.Staking__DepositOutOfGas());
-        store.stakingAsset.transfer(args.withdrawer, amount);
+        store.stakingAsset.safeTransfer(args.withdrawer, amount);
         emit IStakingCore.FailedDeposit(
           args.attester, args.withdrawer, args.publicKeyInG1, args.publicKeyInG2, args.proofOfPossession
         );
       }
     }
-    store.stakingAsset.approve(address(store.gse), 0);
+    if (totalAmount > 0) {
+      store.stakingAsset.safeApprove(address(store.gse), 0);
+    }
   }
 
   /**
