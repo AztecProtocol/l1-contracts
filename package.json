@@ -4,9 +4,13 @@
   "license": "Apache-2.0",
   "description": "Aztec contracts for the Ethereum mainnet and testnets",
   "devDependencies": {
-    "@openzeppelin/merkle-tree": "^1.0.8",
     "ox": "^0.8.3",
     "solhint": "5.1.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.4.0",
+    "@openzeppelin/merkle-tree": "^1.0.8",
+    "forge-std": "git+https://github.com/foundry-rs/forge-std.git"
   },
   "scripts": {
     "format": "forge fmt",
