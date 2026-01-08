@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+// docs:start:contract
 pragma solidity >=0.8.27;
 
 import {IMintableERC20} from "@aztec/shared/interfaces/IMintableERC20.sol";
@@ -38,3 +39,4 @@ contract TestERC20 is ERC20, IMintableERC20, Ownable2Step {
     addMinter(newOwner);
   }
 }
+// docs:end:contract

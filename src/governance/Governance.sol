@@ -336,11 +336,7 @@ contract Governance is IGovernance {
    * @param _beneficiary The beneficiary to increase the power of.
    * @param _amount The amount of funds to deposit, which is converted to power 1:1.
    */
-  function deposit(address _beneficiary, uint256 _amount)
-    external
-    override(IGovernance)
-    isDepositAllowed(_beneficiary)
-  {
+  function deposit(address _beneficiary, uint256 _amount) external override(IGovernance) isDepositAllowed(_beneficiary) {
     ASSET.safeTransferFrom(msg.sender, address(this), _amount);
     users[_beneficiary].add(_amount);
     total.add(_amount);
@@ -738,9 +734,8 @@ contract Governance is IGovernance {
 
     uint256 withdrawalId = withdrawalCount++;
 
-    withdrawals[withdrawalId] = Withdrawal({
-      amount: _amount, unlocksAt: Timestamp.wrap(block.timestamp) + _delay, recipient: _to, claimed: false
-    });
+    withdrawals[withdrawalId] =
+      Withdrawal({amount: _amount, unlocksAt: Timestamp.wrap(block.timestamp) + _delay, recipient: _to, claimed: false});
 
     emit WithdrawInitiated(withdrawalId, _to, _amount);
 
