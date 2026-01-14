@@ -33,11 +33,11 @@ import {AttestationLibHelper} from "@test/helper_libraries/AttestationLibHelper.
 import {Ownable} from "@oz/access/Ownable.sol";
 import {IInbox} from "@aztec/core/interfaces/messagebridge/IInbox.sol";
 import {Signature} from "@aztec/shared/libraries/SignatureLib.sol";
-import {CheckpointLog} from "@aztec/core/libraries/compressed-data/CheckpointLog.sol";
+import {BlockLog} from "@aztec/core/libraries/compressed-data/BlockLog.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 // solhint-disable comprehensive-interface
 
-struct Checkpoint {
+struct Block {
   ProposeArgs proposeArgs;
   bytes blobInputs;
   CommitteeAttestation[] attestations;
@@ -68,13 +68,13 @@ contract Tmnt419Test is RollupBase {
   DecoderBase.Full internal full;
 
   /**
-   * @notice  Set up the contracts needed for the tests with time aligned to the provided checkpoint name
+   * @notice  Set up the contracts needed for the tests with time aligned to the provided block name
    */
   modifier setUpFor(string memory _name) {
     {
       full = load(_name);
-      Slot slotNumber = full.checkpoint.header.slotNumber;
-      uint256 initialTime = Timestamp.unwrap(full.checkpoint.header.timestamp) - Slot.unwrap(slotNumber) * SLOT_DURATION;
+      Slot slotNumber = full.block.header.slotNumber;
+      uint256 initialTime = Timestamp.unwrap(full.block.header.timestamp) - Slot.unwrap(slotNumber) * SLOT_DURATION;
       vm.warp(initialTime);
     }
 
@@ -103,63 +103,60 @@ contract Tmnt419Test is RollupBase {
     _;
   }
 
-  function test_getStorageTempCheckpointLog() public setUpFor("empty_checkpoint_1") {
+  function test_getStorageTempBlockLog() public setUpFor("empty_block_1") {
     skipBlobCheck(address(rollup));
     timeCheater.cheat__progressSlot();
 
     for (uint256 i = 0; i < 100; i++) {
-      Checkpoint memory checkpoint = getCheckpoint();
+      Block memory l2Block = getBlock();
       rollup.propose(
-        checkpoint.proposeArgs,
-        AttestationLibHelper.packAttestations(checkpoint.attestations),
-        checkpoint.signers,
-        checkpoint.attestationsAndSignersSignature,
-        checkpoint.blobInputs
+        l2Block.proposeArgs,
+        AttestationLibHelper.packAttestations(l2Block.attestations),
+        l2Block.signers,
+        l2Block.attestationsAndSignersSignature,
+        l2Block.blobInputs
       );
       timeCheater.cheat__progressSlot();
 
-      stdstore.enable_packed_slots().target(address(rollup)).sig("getProvenCheckpointNumber()")
-        .checked_write(rollup.getPendingCheckpointNumber());
+      stdstore.enable_packed_slots().target(address(rollup)).sig("getProvenBlockNumber()")
+        .checked_write(rollup.getPendingBlockNumber());
     }
 
-    assertEq(rollup.getProvenCheckpointNumber(), 100);
+    assertEq(rollup.getProvenBlockNumber(), 100);
 
     // Read something so old that it should be stale
     vm.expectRevert(
       abi.encodeWithSelector(
-        Errors.Rollup__UnavailableTempCheckpointLog.selector, 1, 100, 1 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
+        Errors.Rollup__UnavailableTempBlockLog.selector, 1, 100, 1 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
       )
     );
-    rollup.getCheckpoint(1);
+    rollup.getBlock(1);
 
     vm.expectRevert(
       abi.encodeWithSelector(
-        Errors.Rollup__UnavailableTempCheckpointLog.selector,
-        100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2),
-        100,
-        100
+        Errors.Rollup__UnavailableTempBlockLog.selector, 100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2), 100, 100
       )
     );
-    rollup.getCheckpoint(100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2));
+    rollup.getBlock(100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2));
 
     // Read something current
-    rollup.getCheckpoint(rollup.getPendingCheckpointNumber());
+    rollup.getBlock(rollup.getPendingBlockNumber());
 
     // Try to read into the future see a failure
     vm.expectRevert(
       abi.encodeWithSelector(
-        Errors.Rollup__UnavailableTempCheckpointLog.selector, 101, 100, 101 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
+        Errors.Rollup__UnavailableTempBlockLog.selector, 101, 100, 101 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
       )
     );
-    rollup.getCheckpoint(101);
+    rollup.getBlock(101);
   }
 
-  function getCheckpoint() internal view returns (Checkpoint memory) {
+  function getBlock() internal view returns (Block memory) {
     // We will be using the genesis for both before and after. This will be impossible
     // to prove, but we don't need to prove anything here.
     bytes32 archiveRoot = bytes32(Constants.GENESIS_ARCHIVE_ROOT);
 
-    ProposedHeader memory header = full.checkpoint.header;
+    ProposedHeader memory header = full.block.header;
 
     Slot slotNumber = rollup.getCurrentSlot();
     Timestamp ts = rollup.getTimestampForSlot(slotNumber);
@@ -177,15 +174,19 @@ contract Tmnt419Test is RollupBase {
       header.totalManaUsed = 0;
     }
 
-    ProposeArgs memory proposeArgs =
-      ProposeArgs({header: header, archive: archiveRoot, oracleInput: OracleInput({feeAssetPriceModifier: 0})});
+    ProposeArgs memory proposeArgs = ProposeArgs({
+      header: header,
+      archive: archiveRoot,
+      stateReference: EMPTY_STATE_REFERENCE,
+      oracleInput: OracleInput({feeAssetPriceModifier: 0})
+    });
 
     CommitteeAttestation[] memory attestations = new CommitteeAttestation[](0);
     address[] memory signers = new address[](0);
 
-    return Checkpoint({
+    return Block({
       proposeArgs: proposeArgs,
-      blobInputs: full.checkpoint.blobCommitments,
+      blobInputs: full.block.blobCommitments,
       attestations: attestations,
       signers: signers,
       attestationsAndSignersSignature: Signature({v: 0, r: 0, s: 0})

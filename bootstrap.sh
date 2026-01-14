@@ -1,36 +1,8 @@
 #!/usr/bin/env bash
 source $(git rev-parse --show-toplevel)/ci3/source_bootstrap
 
-function download_solc {
-  # Read solc path from foundry.toml and extract version (e.g., "./solc-0.8.27" -> "0.8.27")
-  local solc_path=$(grep '^solc = ' foundry.toml | sed 's/.*"\.\/\(.*\)"/\1/')
-  local solc_version=${solc_path#solc-}
-  if [ -f "$solc_path" ]; then
-    return 0
-  fi
-  local platform="$(os)-$(arch)"
-  local artifact="solc-$platform-$solc_version.tar.gz"
-  if cache_download "$artifact"; then
-    return 0
-  fi
+cmd=${1:-}
 
-  # Use forge's built-in svm to download solc (handles all platforms including arm64)
-  echo_stderr "Downloading solc $solc_version via svm..."
-  # svm-rs always uses ~/.svm if it exists. Make sure it does for a consistent path across OS/architecture.
-  mkdir -p "$HOME/.svm"
-  # We build a minimal file to trigger svm download of solc.
-  forge build --use "$solc_version" src/core/libraries/ConstantsGen.sol 2>/dev/null
-
-  # Copy from svm cache to local path
-  local svm_path="$HOME/.svm/$solc_version/solc-$solc_version"
-  if [ ! -f "$svm_path" ]; then
-    echo_stderr "ERROR: svm failed to download solc $solc_version"
-    exit 1
-  fi
-
-  cp "$svm_path" "$solc_path"
-  cache_upload "$artifact" "$solc_path"
-}
 
 # We rely on noir-projects for the verifier contract.
 export hash=$(cache_content_hash \
@@ -40,19 +12,16 @@ export hash=$(cache_content_hash \
   ../barretenberg/cpp/.rebuild_patterns
 )
 
-function build_src {
-  echo_header "l1-contracts build_src"
-
-  # Download solc binary
-  download_solc
+function build {
+  echo_header "l1-contracts build"
 
   # Deps install
-  npm_install_deps
+  yarn
 
-  local artifact=l1-contracts-src-$hash.tar.gz
+  local artifact=l1-contracts-$hash.tar.gz
   if ! cache_download $artifact; then
     # Clean
-    rm -rf broadcast cache out serve
+    rm -rf broadcast cache out serve generated
 
     # Install
     forge install
@@ -60,22 +29,6 @@ function build_src {
     # Ensure libraries are at the correct version
     git submodule update --init --recursive ./lib
 
-    # Compile contracts
-    # Build everything in src and test (except tests that need generated verifier).
-    forge build $(find src test -name '*.sol' ! -name 'shouting.t.sol')
-
-    # Output storage information for the rollup contract.
-    forge inspect --json src/core/Rollup.sol:Rollup storage > ./out/Rollup.sol/storage.json
-
-    cache_upload $artifact out
-  fi
-}
-
-function build_verifier {
-  echo_header "l1-contracts build_verifier"
-
-  local artifact=l1-contracts-verifier-$hash.tar.gz
-  if ! cache_download $artifact; then
     mkdir -p generated
     # Copy from noir-projects. Bootstrap must have ran in noir-projects.
     local rollup_verifier_path=../noir-projects/noir-protocol-circuits/target/keys/rollup_root_verifier.sol
@@ -86,22 +39,21 @@ function build_verifier {
       exit 1
     fi
 
-    # Build the generated verifier contract with optimization.
+    # Compile contracts
+    # Step 1: Build everything in src.
+    forge build $(find src test -name '*.sol')
+
+    # Step 1.5: Output storage information for the rollup contract.
+    forge inspect --json src/core/Rollup.sol:Rollup storage > ./out/Rollup.sol/storage.json
+
+    # Step 2: Build the generated verifier contract with optimization.
     forge build $(find generated -name '*.sol') \
       --optimize \
       --optimizer-runs 1 \
       --no-metadata
 
-    # Build the one test that imports the verifier.
-    forge build test/shouting.t.sol
-
     cache_upload $artifact out generated
   fi
-}
-
-function build {
-  build_src
-  build_verifier
 }
 
 function test_cmds {
@@ -109,7 +61,7 @@ function test_cmds {
   echo "$hash cd l1-contracts && forge fmt --check"
   echo "$hash cd l1-contracts && forge test"
   echo "$hash cd l1-contracts && forge test --no-match-contract UniswapPortalTest --match-contract MerkleCheck --ffi"
-  if [[ "${TARGET_BRANCH:-}" == "master" || "${TARGET_BRANCH:-}" == "staging" ]]; then
+  if [ "$CI" -eq 0 ] || [[ "${TARGET_BRANCH:-}" == "master" || "${TARGET_BRANCH:-}" == "staging" ]]; then
     echo "$hash cd l1-contracts && forge test --no-match-contract UniswapPortalTest --match-contract ScreamAndShoutTest"
   fi
 }
@@ -285,7 +237,7 @@ function release_git_push {
 
   # Update the package version in package.json.
   # TODO remove package.json.
-  release_prep_package_json $version
+  $root/ci3/npm/release_prep_package_json $version
 
   # CI needs to authenticate from GITHUB_TOKEN.
   gh auth setup-git &>/dev/null || true
@@ -432,13 +384,35 @@ function release {
 }
 
 case "$cmd" in
-  "")
+  "clean")
+    git clean -fdx
+    ;;
+  "ci")
     build
+    test
+    ;;
+  ""|"fast"|"full")
+    build
+    ;;
+  "gas_report")
+    shift
+    gas_report "$@"
+    ;;
+  "gas_benchmark")
+    shift
+    gas_benchmark "$@"
+    ;;
+  "coverage")
+    shift
+    coverage "$@"
+    ;;
+  test|test_cmds|bench|bench_cmds|inspect|release)
+    $cmd
     ;;
   "hash")
     echo $hash
     ;;
   *)
-    default_cmd_handler "$@"
-    ;;
+    echo "Unknown command: $cmd"
+    exit 1
 esac

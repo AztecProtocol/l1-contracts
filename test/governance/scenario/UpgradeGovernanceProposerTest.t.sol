@@ -93,7 +93,7 @@ contract UpgradeGovernanceProposerTest is TestBase {
   }
 
   function test_UpgradeIntoNewVersion() external {
-    timeCheater.cheat__jumpForwardEpochs(rollup.getLagInEpochsForValidatorSet());
+    timeCheater.cheat__jumpForwardEpochs(2);
     payload = IPayload(address(new NewGovernanceProposerPayload(registry, gse)));
 
     for (uint256 i = 0; i < 10; i++) {

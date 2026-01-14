@@ -103,8 +103,8 @@ contract TallySlashingProposerTest is TestBase {
       TestConstants.AZTEC_PROOF_SUBMISSION_EPOCHS
     );
 
-    // Jump forward for sampling delay
-    timeCheater.cheat__jumpForwardEpochs(rollup.getLagInEpochsForValidatorSet());
+    // Jump forward 2 epochs for sampling delay
+    timeCheater.cheat__jumpForwardEpochs(2);
 
     assertEq(rollup.getActiveAttesterCount(), validatorCount, "Invalid attester count");
   }
