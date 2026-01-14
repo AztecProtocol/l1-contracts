@@ -22,7 +22,7 @@ import {G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
  *      external functions primarily focused on:
  *      - Validator staking operations (deposit, withdraw, queue management)
  *      - Validator selection and committee setup
- *      - Checkpoint attestation invalidation
+ *      - Block attestation invalidation
  *      - Slashing mechanism integration
  *      - Epoch and proposer management
  */
@@ -66,12 +66,8 @@ library ValidatorOperationsExtLib {
     StakingLib.finalizeWithdraw(_attester);
   }
 
-  function initializeValidatorSelection(
-    uint256 _targetCommitteeSize,
-    uint256 _lagInEpochsForValidatorSet,
-    uint256 _lagInEpochsForRandao
-  ) external {
-    ValidatorSelectionLib.initialize(_targetCommitteeSize, _lagInEpochsForValidatorSet, _lagInEpochsForRandao);
+  function initializeValidatorSelection(uint256 _targetCommitteeSize, uint256 _lagInEpochs) external {
+    ValidatorSelectionLib.initialize(_targetCommitteeSize, _lagInEpochs);
   }
 
   function setupEpoch() external {
@@ -89,20 +85,20 @@ library ValidatorOperationsExtLib {
   }
 
   function invalidateBadAttestation(
-    uint256 _checkpointNumber,
+    uint256 _blockNumber,
     CommitteeAttestations memory _attestations,
     address[] memory _committee,
     uint256 _invalidIndex
   ) external {
-    InvalidateLib.invalidateBadAttestation(_checkpointNumber, _attestations, _committee, _invalidIndex);
+    InvalidateLib.invalidateBadAttestation(_blockNumber, _attestations, _committee, _invalidIndex);
   }
 
   function invalidateInsufficientAttestations(
-    uint256 _checkpointNumber,
+    uint256 _blockNumber,
     CommitteeAttestations memory _attestations,
     address[] memory _committee
   ) external {
-    InvalidateLib.invalidateInsufficientAttestations(_checkpointNumber, _attestations, _committee);
+    InvalidateLib.invalidateInsufficientAttestations(_blockNumber, _attestations, _committee);
   }
 
   function slash(address _attester, uint256 _amount) external returns (bool) {
@@ -133,12 +129,8 @@ library ValidatorOperationsExtLib {
     return ValidatorSelectionLib.getSamplingSize(_epoch);
   }
 
-  function getLagInEpochsForValidatorSet() external view returns (uint256) {
-    return ValidatorSelectionLib.getLagInEpochsForValidatorSet();
-  }
-
-  function getLagInEpochsForRandao() external view returns (uint256) {
-    return ValidatorSelectionLib.getLagInEpochsForRandao();
+  function getLagInEpochs() external view returns (uint256) {
+    return ValidatorSelectionLib.getLagInEpochs();
   }
 
   function getTargetCommitteeSize() external view returns (uint256) {
