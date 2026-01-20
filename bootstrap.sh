@@ -67,6 +67,9 @@ function build_src {
     # Output storage information for the rollup contract.
     forge inspect --json src/core/Rollup.sol:Rollup storage > ./out/Rollup.sol/storage.json
 
+    # Output storage information for the escape hatch contract.
+    forge inspect --json src/core/EscapeHatch.sol:EscapeHatch storage > ./out/EscapeHatch.sol/storage.json
+
     cache_upload $artifact out cache
   fi
 }
@@ -77,6 +80,10 @@ function build_verifier {
   local artifact=l1-contracts-verifier-$hash.tar.gz
   if ! cache_download $artifact; then
     mkdir -p generated
+
+    # Generate network defaults from spartan (canonical source of truth for config values)
+    yq -o json 'explode(.) | ."l1-contracts" // {}' ../spartan/environments/network-defaults.yml > generated/default.json
+
     # Copy from noir-projects. Bootstrap must have ran in noir-projects.
     local rollup_verifier_path=../noir-projects/noir-protocol-circuits/target/keys/rollup_root_verifier.sol
     if [ -f "$rollup_verifier_path" ]; then
