@@ -16,14 +16,14 @@ import {DataStructures} from "@aztec/core/libraries/DataStructures.sol";
 contract InboxTest is Test {
   using Hash for DataStructures.L1ToL2Msg;
 
-  uint256 internal constant FIRST_REAL_TREE_NUM = Constants.INITIAL_CHECKPOINT_NUMBER + 1;
+  uint256 internal constant FIRST_REAL_TREE_NUM = Constants.INITIAL_L2_BLOCK_NUM + 1;
   // We set low depth (5) to ensure we sufficiently test the tree transitions
   uint256 internal constant HEIGHT = 5;
   uint256 internal constant SIZE = 2 ** HEIGHT;
 
   InboxHarness internal inbox;
   uint256 internal version = 0;
-  uint256 internal checkpointNumber = Constants.INITIAL_CHECKPOINT_NUMBER;
+  uint256 internal blockNumber = Constants.INITIAL_L2_BLOCK_NUM;
   bytes32 internal emptyTreeRoot;
 
   uint256 internal manaTarget = 1e8;
@@ -39,7 +39,8 @@ contract InboxTest is Test {
     return DataStructures.L1ToL2Msg({
       sender: DataStructures.L1Actor({actor: address(this), chainId: block.chainid}),
       recipient: DataStructures.L2Actor({
-        actor: 0x1000000000000000000000000000000000000000000000000000000000000000, version: version
+        actor: 0x1000000000000000000000000000000000000000000000000000000000000000,
+        version: version
       }),
       content: 0x2000000000000000000000000000000000000000000000000000000000000000,
       secretHash: 0x3000000000000000000000000000000000000000000000000000000000000000,
@@ -76,11 +77,11 @@ contract InboxTest is Test {
     return _message;
   }
 
-  // Since there is a 1 checkpoint lag between tree to be consumed and tree in progress the following invariant should
-  // never be violated
+  // Since there is a 1 block lag between tree to be consumed and tree in progress the following invariant should never
+  // be violated
   modifier checkInvariant() {
     _;
-    assertLt(checkpointNumber, inbox.getInProgress());
+    assertLt(blockNumber, inbox.getInProgress());
   }
 
   function testRevertIfIgnition() public {
@@ -93,12 +94,12 @@ contract InboxTest is Test {
   function testRevertIfNotConsumingFromRollup() public {
     vm.prank(address(0x1));
     vm.expectRevert(Errors.Inbox__Unauthorized.selector);
-    inbox.consume(checkpointNumber);
+    inbox.consume(blockNumber);
   }
 
   function testRevertIFConsumingInFuture() public {
     vm.expectRevert(Errors.Inbox__MustBuildBeforeConsume.selector);
-    inbox.consume(checkpointNumber + 1000);
+    inbox.consume(blockNumber + 1000);
   }
 
   function testFuzzInsert(DataStructures.L1ToL2Msg memory _message) public checkInvariant {
@@ -190,7 +191,7 @@ contract InboxTest is Test {
   }
 
   function _send(DataStructures.L1ToL2Msg[] memory _messages) internal checkInvariant {
-    bytes32 toConsumeRoot = inbox.getToConsumeRoot(checkpointNumber);
+    bytes32 toConsumeRoot = inbox.getToConsumeRoot(blockNumber);
 
     // We send the messages and then check that toConsume root did not change.
     for (uint256 i = 0; i < _messages.length; i++) {
@@ -205,10 +206,10 @@ contract InboxTest is Test {
       assertEq(inbox.getNumTrees(), expectedNumTrees, "Unexpected number of trees");
     }
 
-    // Root of a tree waiting to be consumed should not change because we introduced a 1 checkpoint lag to prevent
-    // sequencer DOS attacks
+    // Root of a tree waiting to be consumed should not change because we introduced a 1 block lag to prevent sequencer
+    // DOS attacks
     assertEq(
-      inbox.getToConsumeRoot(checkpointNumber), toConsumeRoot, "Root of a tree waiting to be consumed should not change"
+      inbox.getToConsumeRoot(blockNumber), toConsumeRoot, "Root of a tree waiting to be consumed should not change"
     );
   }
 
@@ -221,8 +222,8 @@ contract InboxTest is Test {
     // Now we consume the trees
     for (uint256 i = 0; i < numTreesToConsume; i++) {
       uint256 numTrees = inbox.getNumTrees();
-      uint256 expectedNumTrees = (checkpointNumber + 1 == inbox.getInProgress()) ? numTrees + 1 : numTrees;
-      bytes32 root = inbox.consume(checkpointNumber);
+      uint256 expectedNumTrees = (blockNumber + 1 == inbox.getInProgress()) ? numTrees + 1 : numTrees;
+      bytes32 root = inbox.consume(blockNumber);
 
       // We check whether a new tree is correctly initialized when the one which was in progress was set as to consume
       assertEq(inbox.getNumTrees(), expectedNumTrees, "Unexpected number of trees");
@@ -231,7 +232,7 @@ contract InboxTest is Test {
       if (i > initialNumTrees) {
         assertEq(root, emptyTreeRoot, "Root of a newly initialized tree not empty");
       }
-      checkpointNumber += 1;
+      blockNumber += 1;
     }
   }
 }

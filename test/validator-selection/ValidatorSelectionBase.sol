@@ -31,11 +31,10 @@ import {BN254Lib, G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
 import {TimeCheater} from "../staking/TimeCheater.sol";
 import {stdStorage, StdStorage} from "forge-std/Test.sol";
 import {Math} from "@oz/utils/math/Math.sol";
-
 // solhint-disable comprehensive-interface
 
 /**
- * We are using the same checkpoints as from Rollup.t.sol.
+ * We are using the same blocks as from Rollup.t.sol.
  * The tests in this file is testing the sequencer selection
  */
 contract ValidatorSelectionTestBase is DecoderBase {
@@ -75,12 +74,12 @@ contract ValidatorSelectionTestBase is DecoderBase {
    * @notice Setup contracts needed for the tests with the a given number of validators
    */
   modifier setup(uint256 _validatorCount, uint256 _targetCommitteeSize) {
-    string memory _name = "mixed_checkpoint_1";
+    string memory _name = "mixed_block_1";
     {
       DecoderBase.Full memory full = load(_name);
-      Slot slotNumber = full.checkpoint.header.slotNumber;
+      Slot slotNumber = full.block.header.slotNumber;
       uint256 initialTime =
-        Timestamp.unwrap(full.checkpoint.header.timestamp) - Slot.unwrap(slotNumber) * TestConstants.AZTEC_SLOT_DURATION;
+        Timestamp.unwrap(full.block.header.timestamp) - Slot.unwrap(slotNumber) * TestConstants.AZTEC_SLOT_DURATION;
 
       timeCheater = new TimeCheater(
         address(rollup),
@@ -101,8 +100,9 @@ contract ValidatorSelectionTestBase is DecoderBase {
     StakingQueueConfig memory stakingQueueConfig = TestConstants.getStakingQueueConfig();
     stakingQueueConfig.normalFlushSizeMin = Math.max(_validatorCount, 1);
 
-    RollupBuilder builder = new RollupBuilder(address(this)).setStakingQueueConfig(stakingQueueConfig)
-      .setValidators(initialValidators).setTargetCommitteeSize(_targetCommitteeSize);
+    RollupBuilder builder = new RollupBuilder(address(this)).setStakingQueueConfig(stakingQueueConfig).setValidators(
+      initialValidators
+    ).setTargetCommitteeSize(_targetCommitteeSize);
     builder.deploy();
 
     rollup = builder.getConfig().rollup;
@@ -118,8 +118,7 @@ contract ValidatorSelectionTestBase is DecoderBase {
     _;
   }
 
-  modifier progressEpochsToInclusion() {
-    uint256 _epochCount = rollup.getLagInEpochsForValidatorSet();
+  modifier progressEpochs(uint256 _epochCount) {
     // Progress into the next epoch for changes to take effect
     for (uint256 i = 0; i < _epochCount; i++) {
       timeCheater.cheat__progressEpoch();
