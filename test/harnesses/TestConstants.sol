@@ -18,8 +18,7 @@ library TestConstants {
   uint256 internal constant AZTEC_SLOT_DURATION = 36;
   uint256 internal constant AZTEC_EPOCH_DURATION = 32;
   uint256 internal constant AZTEC_TARGET_COMMITTEE_SIZE = 48;
-  uint256 internal constant AZTEC_LAG_IN_EPOCHS_FOR_VALIDATOR_SET = 3;
-  uint256 internal constant AZTEC_LAG_IN_EPOCHS_FOR_RANDAO = 2;
+  uint256 internal constant AZTEC_LAG_IN_EPOCHS = 2;
   uint256 internal constant AZTEC_PROOF_SUBMISSION_EPOCHS = 1;
   uint256 internal constant AZTEC_SLASHING_QUORUM = 6;
   uint256 internal constant AZTEC_SLASHING_ROUND_SIZE = 10;
@@ -47,7 +46,7 @@ library TestConstants {
   // Genesis state
   bytes32 internal constant GENESIS_ARCHIVE_ROOT = bytes32(Constants.GENESIS_ARCHIVE_ROOT);
   bytes32 internal constant GENESIS_VK_TREE_ROOT = bytes32(0);
-  bytes32 internal constant GENESIS_PROTOCOL_CONTRACTS_HASH = bytes32(0);
+  bytes32 internal constant GENESIS_PROTOCOL_CONTRACT_TREE_ROOT = bytes32(0);
 
   function getGovernanceConfiguration() internal pure returns (Configuration memory) {
     return Configuration({
@@ -65,7 +64,7 @@ library TestConstants {
   function getGenesisState() internal pure returns (GenesisState memory) {
     return GenesisState({
       vkTreeRoot: GENESIS_VK_TREE_ROOT,
-      protocolContractsHash: GENESIS_PROTOCOL_CONTRACTS_HASH,
+      protocolContractTreeRoot: GENESIS_PROTOCOL_CONTRACT_TREE_ROOT,
       genesisArchiveRoot: GENESIS_ARCHIVE_ROOT
     });
   }
@@ -79,7 +78,7 @@ library TestConstants {
       rewardDistributor: IRewardDistributor(address(0)),
       sequencerBps: Bps.wrap(5000),
       booster: IBoosterCore(address(0)), // Will cause a deployment
-      checkpointReward: 50e18
+      blockReward: 50e18
     });
   }
 
@@ -99,8 +98,7 @@ library TestConstants {
       aztecEpochDuration: AZTEC_EPOCH_DURATION,
       aztecProofSubmissionEpochs: AZTEC_PROOF_SUBMISSION_EPOCHS,
       targetCommitteeSize: AZTEC_TARGET_COMMITTEE_SIZE,
-      lagInEpochsForValidatorSet: AZTEC_LAG_IN_EPOCHS_FOR_VALIDATOR_SET,
-      lagInEpochsForRandao: AZTEC_LAG_IN_EPOCHS_FOR_RANDAO,
+      lagInEpochs: AZTEC_LAG_IN_EPOCHS,
       slashingQuorum: AZTEC_SLASHING_QUORUM,
       slashingRoundSize: AZTEC_SLASHING_ROUND_SIZE,
       slashingLifetimeInRounds: AZTEC_SLASHING_LIFETIME_IN_ROUNDS,
