@@ -18,7 +18,6 @@ library DataStructures {
     address actor;
     uint256 chainId;
   }
-
   // docs:end:l1_actor
 
   // docs:start:l2_actor
@@ -31,7 +30,6 @@ library DataStructures {
     bytes32 actor;
     uint256 version;
   }
-
   // docs:end:l2_actor
 
   // docs:start:l1_to_l2_msg
@@ -51,7 +49,6 @@ library DataStructures {
     bytes32 secretHash;
     uint256 index;
   }
-
   // docs:end:l1_to_l2_msg
 
   // docs:start:l2_to_l1_msg

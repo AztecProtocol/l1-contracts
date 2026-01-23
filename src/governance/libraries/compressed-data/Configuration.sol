@@ -50,9 +50,8 @@ library CompressedConfigurationLib {
     view
     returns (ProposeWithLockConfiguration memory)
   {
-    return ProposeWithLockConfiguration({
-      lockDelay: _compressed.lockDelay.decompress(), lockAmount: _compressed.lockAmount
-    });
+    return
+      ProposeWithLockConfiguration({lockDelay: _compressed.lockDelay.decompress(), lockAmount: _compressed.lockAmount});
   }
 
   /**
@@ -90,7 +89,8 @@ library CompressedConfigurationLib {
   function decompress(CompressedConfiguration memory _compressed) internal pure returns (Configuration memory) {
     return Configuration({
       proposeConfig: ProposeWithLockConfiguration({
-        lockDelay: _compressed.lockDelay.decompress(), lockAmount: _compressed.lockAmount
+        lockDelay: _compressed.lockDelay.decompress(),
+        lockAmount: _compressed.lockAmount
       }),
       votingDelay: _compressed.votingDelay.decompress(),
       votingDuration: _compressed.votingDuration.decompress(),
