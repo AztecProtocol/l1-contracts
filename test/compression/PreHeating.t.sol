@@ -43,7 +43,7 @@ import {ProposeArgs, ProposePayload, OracleInput, ProposeLib} from "@aztec/core/
 import {IERC20} from "@oz/token/ERC20/IERC20.sol";
 import {
   FeeLib,
-  EthPerFeeAssetE12,
+  FeeAssetPerEthE9,
   EthValue,
   FeeHeader,
   L1FeeData,
@@ -189,7 +189,7 @@ contract PreHeatingTest is FeeModelTestPoints, DecoderBase {
   }
 
   constructor() {
-    FeeLib.initialize(MANA_TARGET, EthValue.wrap(100), TestConstants.AZTEC_INITIAL_ETH_PER_FEE_ASSET);
+    FeeLib.initialize(MANA_TARGET, EthValue.wrap(100));
   }
 
   function _loadL1Metadata(uint256 index) internal {

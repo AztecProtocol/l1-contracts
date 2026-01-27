@@ -14,13 +14,12 @@ import {Slot} from "@aztec/core/libraries/TimeLib.sol";
 import {
   OracleInput,
   FeeLib,
-  MAX_FEE_ASSET_PRICE_MODIFIER_BPS,
+  MAX_FEE_ASSET_PRICE_MODIFIER,
   MINIMUM_CONGESTION_MULTIPLIER,
   EthValue,
-  EthPerFeeAssetE12
+  FeeAssetPerEthE9
 } from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {Math} from "@oz/utils/math/Math.sol";
-import {TestConstants} from "../harnesses/TestConstants.sol";
 
 contract MinimalFeeModelTest is FeeModelTestPoints {
   using Math for uint256;
@@ -46,28 +45,26 @@ contract MinimalFeeModelTest is FeeModelTestPoints {
     vm.fee(l1Metadata[0].base_fee);
     vm.blobBaseFee(l1Metadata[0].blob_fee);
 
-    model = new MinimalFeeModel(
-      SLOT_DURATION, EPOCH_DURATION, PROOF_SUBMISSION_EPOCHS, TestConstants.AZTEC_INITIAL_ETH_PER_FEE_ASSET
-    );
+    model = new MinimalFeeModel(SLOT_DURATION, EPOCH_DURATION, PROOF_SUBMISSION_EPOCHS);
     model.setProvingCost(provingCost);
   }
 
-  function test_computeEthPerFeeAsset() public {
+  function test_computeFeeAssetPerEth() public {
     // For every test point, add the oracle input to the model
     // Then check that we get the same fee asset price as the python model
 
     for (uint256 i = 0; i < points.length; i++) {
       assertEq(
-        EthPerFeeAssetE12.unwrap(model.getEthPerFeeAsset()),
-        points[i].outputs.eth_per_fee_asset_at_execution,
-        "Computed eth per fee asset does not match expected value"
+        FeeAssetPerEthE9.unwrap(model.getFeeAssetPerEth()),
+        points[i].outputs.fee_asset_price_at_execution,
+        "Computed fee asset price does not match expected value"
       );
       model.addSlot(OracleInput({feeAssetPriceModifier: points[i].oracle_input.fee_asset_price_modifier}));
     }
   }
 
   function test_invalidOracleInput() public {
-    uint256 feeAssetPriceBoundary = MAX_FEE_ASSET_PRICE_MODIFIER_BPS + 1;
+    uint256 feeAssetPriceBoundary = MAX_FEE_ASSET_PRICE_MODIFIER + 1;
 
     vm.expectRevert(abi.encodeWithSelector(Errors.FeeLib__InvalidFeeAssetPriceModifier.selector));
     model.addSlot(OracleInput({feeAssetPriceModifier: int256(feeAssetPriceBoundary)}));
@@ -118,7 +115,7 @@ contract MinimalFeeModelTest is FeeModelTestPoints {
 
         // Get a hold of the values that is used for the next checkpoint
         L1FeesModel memory fees = model.getCurrentL1Fees();
-        uint256 ethPerFeeAsset = EthPerFeeAssetE12.unwrap(model.getEthPerFeeAsset());
+        uint256 feeAssetPrice = FeeAssetPerEthE9.unwrap(model.getFeeAssetPerEth());
         // We are assuming 3 blobs for all of these computations, as per the model.
         // 3 blobs because that can fit ~360 txs, or 10 tps.
         ManaMinFeeComponentsModel memory components = model.manaMinFeeComponents(false);
@@ -143,7 +140,7 @@ contract MinimalFeeModelTest is FeeModelTestPoints {
 
         assertEq(point.fee_header, feeHeader);
 
-        assertEq(point.outputs.eth_per_fee_asset_at_execution, ethPerFeeAsset, "ethPerFeeAsset mismatch");
+        assertEq(point.outputs.fee_asset_price_at_execution, feeAssetPrice, "feeAssetPrice mismatch");
         assertEq(point.outputs.l1_fee_oracle_output, fees, "l1 fee oracle output");
         assertEq(point.outputs.l1_gas_oracle_values, model.getL1GasOracleValues());
         assertEq(point.outputs.mana_min_fee_components_in_wei, components, "in_wei");

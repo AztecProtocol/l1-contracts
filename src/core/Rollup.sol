@@ -10,7 +10,7 @@ import {
   PublicInputArgs,
   L1FeeData,
   ManaMinFeeComponents,
-  EthPerFeeAssetE12,
+  FeeAssetPerEthE9,
   CheckpointHeaderValidationFlags,
   FeeHeader,
   RollupConfigInput
@@ -519,7 +519,7 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
   }
 
   function getProvingCostPerManaInFeeAsset() external view override(IRollup) returns (FeeAssetValue) {
-    return FeeLib.getProvingCostPerMana().toFeeAsset(getEthPerFeeAsset());
+    return FeeLib.getProvingCostPerMana().toFeeAsset(getFeeAssetPerEth());
   }
 
   function getVersion() external view override(IHaveVersion) returns (uint256) {
@@ -656,13 +656,12 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
   }
 
   /**
-   * @notice  Gets the fee asset price as eth / fee_asset with 1e12 precision
-   *          Higher value = more expensive fee asset
+   * @notice  Gets the fee asset price as fee_asset / eth with 1e9 precision
    *
    * @return The fee asset price
    */
-  function getEthPerFeeAsset() public view override(IRollup) returns (EthPerFeeAssetE12) {
-    return FeeLib.getEthPerFeeAssetAtCheckpoint(STFLib.getStorage().tips.getPending());
+  function getFeeAssetPerEth() public view override(IRollup) returns (FeeAssetPerEthE9) {
+    return FeeLib.getFeeAssetPerEthAtCheckpoint(STFLib.getStorage().tips.getPending());
   }
 
   function getEpochForCheckpoint(uint256 _checkpointNumber) public view override(IRollup) returns (Epoch) {

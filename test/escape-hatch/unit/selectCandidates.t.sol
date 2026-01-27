@@ -183,11 +183,14 @@ contract EscapeHatchSelectCandidatesTest is EscapeHatchBase {
     // it should set proposer exitableAt to end of proof window
     // it should emit CandidateSelected event
 
-    // Add a candidate and warp forward to ensure they're in the snapshot
+    // Add a candidate before warping to ensure they're in the snapshot
     _joinCandidateSetWithConfig(CANDIDATE1);
 
-    // Warp forward to ensure candidate is in snapshot for selection
-    _warpForwardEpochs(config.frequency);
+    // Warp to safe epoch to avoid underflow in selectCandidates
+    _warpToSafeEpoch();
+
+    // Warp forward a bit more to ensure snapshot is stable
+    _warpForwardEpochs(3);
 
     Epoch currentEpoch = _getCurrentEpoch();
     Hatch currentHatch = escapeHatch.getHatch(currentEpoch);
@@ -259,12 +262,15 @@ contract EscapeHatchSelectCandidatesTest is EscapeHatchBase {
     // With 2 candidates, we first prepare a hatch (selecting one), then the other can exit.
     // For the second hatch, if the exiting candidate is selected, we test our scenario.
 
-    // Join both candidates
+    // Join both candidates at epoch 0
     _joinCandidateSetWithConfig(CANDIDATE1);
     _joinCandidateSetWithConfig(CANDIDATE2);
 
-    // Warp forward to ensure candidates are in snapshot for selection
-    _warpForwardEpochs(config.frequency);
+    // Warp to safe epoch (hatch 1) to avoid underflow
+    _warpToSafeEpoch();
+
+    // Warp forward a bit more to ensure snapshot is stable
+    _warpForwardEpochs(3);
 
     // Get current state
     Epoch currentEpoch = _getCurrentEpoch();

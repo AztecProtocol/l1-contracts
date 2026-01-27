@@ -20,7 +20,7 @@ import {
   SubmitEpochRootProofArgs,
   EthValue,
   FeeAssetValue,
-  EthPerFeeAssetE12,
+  FeeAssetPerEthE9,
   PublicInputArgs
 } from "@aztec/core/interfaces/IRollup.sol";
 import {FeeJuicePortal} from "@aztec/core/messagebridge/FeeJuicePortal.sol";
@@ -32,7 +32,6 @@ import {IERC20Errors} from "@oz/interfaces/draft-IERC6093.sol";
 import {ProposeArgs, OracleInput, ProposeLib} from "@aztec/core/libraries/rollup/ProposeLib.sol";
 import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol";
 import {L1_GAS_PER_EPOCH_VERIFIED} from "@aztec/core/libraries/rollup/FeeLib.sol";
-import {PriceLib, ETH_PER_FEE_ASSET_PRECISION} from "@aztec/core/libraries/compressed-data/fees/FeeConfig.sol";
 import {Rollup} from "@aztec/core/Rollup.sol";
 import {RollupBase, IInstance} from "./base/RollupBase.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
@@ -406,10 +405,7 @@ contract RollupTest is RollupBase {
         Math.Rounding.Ceil
       )
       * 1e6);
-    // Convert ETH to fee asset using the price: feeAsset = eth * precision / ethPerFeeAsset
-    proverFees = Math.mulDiv(
-      proverFees, ETH_PER_FEE_ASSET_PRECISION, EthPerFeeAssetE12.unwrap(rollup.getEthPerFeeAsset()), Math.Rounding.Ceil
-    );
+    proverFees *= 10; // the price conversion
 
     uint256 expectedProverRewards = rollup.getCheckpointReward() / 2 * 2 + proverFees;
 
@@ -521,9 +517,9 @@ contract RollupTest is RollupBase {
       );
 
       {
-        EthPerFeeAssetE12 price = rollup.getEthPerFeeAsset();
+        FeeAssetPerEthE9 price = rollup.getFeeAssetPerEth();
         uint256 provingCosts =
-          Math.mulDiv(EthValue.unwrap(interim.provingCostPerManaInEth), 1e12, EthPerFeeAssetE12.unwrap(price));
+          Math.mulDiv(EthValue.unwrap(interim.provingCostPerManaInEth), FeeAssetPerEthE9.unwrap(price), 1e9);
         assertEq(provingCosts, FeeAssetValue.unwrap(interim.provingCostPerManaInFeeAsset), "invalid proving costs");
       }
 

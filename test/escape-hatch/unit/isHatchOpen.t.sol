@@ -61,7 +61,9 @@ contract EscapeHatchIsHatchOpenTest is EscapeHatchBase {
 
     _joinCandidateSetWithConfig(CANDIDATE1);
 
-    _warpForwardEpochs(config.frequency);
+    _warpToSafeEpoch();
+
+    _warpForwardEpochs(3);
 
     // Select candidates - prepares hatch LAG_IN_HATCHES ahead
     escapeHatch.selectCandidates();
