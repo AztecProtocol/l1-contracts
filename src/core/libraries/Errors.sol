@@ -109,7 +109,6 @@ library Errors {
   error EscapeHatch__InvalidConfiguration();
   error EscapeHatch__SetUnstable(Hatch hatch);
   error EscapeHatch__AlreadyValidated(Hatch hatch);
-  error EscapeHatch__HatchTooEarly(Hatch hatch);
 
   // ProposedHeaderLib
   error HeaderLib__InvalidHeaderSize(uint256 expected, uint256 actual); // 0xf3ccb247
@@ -185,7 +184,6 @@ library Errors {
   error FeeLib__InvalidFeeAssetPriceModifier(); // 0xf2fb32ad
   error FeeLib__AlreadyPreheated();
   error FeeLib__InvalidManaLimit(uint256 maximum, uint256 provided);
-  error FeeLib__InvalidInitialEthPerFeeAsset(uint256 provided, uint256 minimum, uint256 maximum);
 
   // SignatureLib (duplicated)
   error SignatureLib__InvalidSignature(address, address); // 0xd9cbae6c
