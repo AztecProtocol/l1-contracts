@@ -71,10 +71,7 @@ contract ZKPassportBase is Test {
       proofVerificationData: ProofVerificationData({vkeyHash: VKEY_HASH, proof: proof, publicInputs: publicInputs}),
       commitments: Commitments({committedInputs: committedInputs}),
       serviceConfig: ServiceConfig({
-        validityPeriodInSeconds: 7 days,
-        domain: CORRECT_DOMAIN,
-        scope: CORRECT_SCOPE,
-        devMode: false
+        validityPeriodInSeconds: 7 days, domain: CORRECT_DOMAIN, scope: CORRECT_SCOPE, devMode: false
       })
     });
   }
@@ -88,10 +85,7 @@ contract ZKPassportBase is Test {
       proofVerificationData: ProofVerificationData({vkeyHash: VKEY_HASH, proof: proof, publicInputs: publicInputs}),
       commitments: Commitments({committedInputs: committedInputs}),
       serviceConfig: ServiceConfig({
-        validityPeriodInSeconds: 7 days,
-        domain: "zkpassport.id",
-        scope: "bigproof",
-        devMode: true
+        validityPeriodInSeconds: 7 days, domain: "zkpassport.id", scope: "bigproof", devMode: true
       })
     });
   }
