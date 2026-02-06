@@ -1,6 +1,6 @@
 {
   "name": "@aztec/l1-contracts",
-  "version": "4.0.0-nightly.20260205",
+  "version": "4.0.0-nightly.20260206",
   "license": "Apache-2.0",
   "description": "Aztec contracts for the Ethereum mainnet and testnets",
   "devDependencies": {
