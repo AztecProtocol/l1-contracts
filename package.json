@@ -1,6 +1,6 @@
 {
   "name": "@aztec/l1-contracts",
-  "version": "4.0.0-spartan.20260207",
+  "version": "4.0.0-spartan.20260208",
   "license": "Apache-2.0",
   "description": "Aztec contracts for the Ethereum mainnet and testnets",
   "devDependencies": {
