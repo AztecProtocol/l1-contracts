@@ -19,7 +19,6 @@ import {SafeCast} from "@oz/utils/math/SafeCast.sol";
 
 import {Registry} from "@aztec/governance/Registry.sol";
 import {Inbox} from "@aztec/core/messagebridge/Inbox.sol";
-import {Outbox} from "@aztec/core/messagebridge/Outbox.sol";
 import {Errors} from "@aztec/core/libraries/Errors.sol";
 import {Rollup, CheckpointLog} from "@aztec/core/Rollup.sol";
 import {
@@ -44,17 +43,17 @@ import {ProposeArgs, ProposePayload, OracleInput, ProposeLib} from "@aztec/core/
 import {IERC20} from "@oz/token/ERC20/IERC20.sol";
 import {
   FeeLib,
-  FeeAssetPerEthE9,
+  EthPerFeeAssetE12,
   EthValue,
   FeeHeader,
   L1FeeData,
-  ManaBaseFeeComponents
+  ManaMinFeeComponents
 } from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {
   FeeModelTestPoints,
   TestPoint,
   FeeHeaderModel,
-  ManaBaseFeeComponentsModel
+  ManaMinFeeComponentsModel
 } from "test/fees/FeeModelTestPoints.t.sol";
 import {MessageHashUtils} from "@oz/utils/cryptography/MessageHashUtils.sol";
 import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol";
@@ -108,7 +107,7 @@ contract PreHeatingTest is FeeModelTestPoints, DecoderBase {
   using MessageHashUtils for bytes32;
   using TimeLib for Slot;
   using FeeLib for uint256;
-  using FeeLib for ManaBaseFeeComponents;
+  using FeeLib for ManaMinFeeComponents;
   // We need to build a checkpoint that we can submit. We will be using some values from
   // the empty checkpoints, but otherwise populate using the fee model test points.
 
@@ -190,7 +189,7 @@ contract PreHeatingTest is FeeModelTestPoints, DecoderBase {
   }
 
   constructor() {
-    FeeLib.initialize(MANA_TARGET, EthValue.wrap(100));
+    FeeLib.initialize(MANA_TARGET, EthValue.wrap(100), TestConstants.AZTEC_INITIAL_ETH_PER_FEE_ASSET);
   }
 
   function _loadL1Metadata(uint256 index) internal {
@@ -262,21 +261,24 @@ contract PreHeatingTest is FeeModelTestPoints, DecoderBase {
           epochSize++;
         }
 
-        bytes32[] memory fees = new bytes32[](Constants.AZTEC_MAX_EPOCH_DURATION * 2);
+        bytes32[] memory fees = new bytes32[](Constants.MAX_CHECKPOINTS_PER_EPOCH * 2);
 
         for (uint256 feeIndex = 0; feeIndex < epochSize; feeIndex++) {
-          // we need the basefee, and we cannot just take it from the point. Because it is different
+          // we need the minFee, and we cannot just take it from the point. Because it is different
           Timestamp ts = rollup.getTimestampForSlot(Slot.wrap(start + feeIndex));
-          uint256 manaBaseFee = rollup.getManaBaseFeeAt(ts, true);
-          uint256 fee = rollup.getFeeHeader(start + feeIndex).manaUsed * manaBaseFee;
+          uint256 manaMinFee = rollup.getManaMinFeeAt(ts, true);
+          uint256 fee = rollup.getFeeHeader(start + feeIndex).manaUsed * manaMinFee;
 
           fees[feeIndex * 2] = bytes32(uint256(uint160(bytes20(coinbase))));
           fees[feeIndex * 2 + 1] = bytes32(fee);
         }
 
+        CheckpointLog memory endCheckpoint = rollup.getCheckpoint(start + epochSize - 1);
+
         PublicInputArgs memory args = PublicInputArgs({
           previousArchive: rollup.getCheckpoint(start).archive,
-          endArchive: rollup.getCheckpoint(start + epochSize - 1).archive,
+          endArchive: endCheckpoint.archive,
+          outHash: endCheckpoint.outHash,
           proverId: address(0)
         });
 
@@ -323,7 +325,7 @@ contract PreHeatingTest is FeeModelTestPoints, DecoderBase {
 
     Timestamp ts = rollup.getTimestampForSlot(slotNumber);
 
-    uint128 manaBaseFee = SafeCast.toUint128(rollup.getManaBaseFeeAt(Timestamp.wrap(block.timestamp), true));
+    uint128 manaMinFee = SafeCast.toUint128(rollup.getManaMinFeeAt(Timestamp.wrap(block.timestamp), true));
     uint256 manaSpent = point.checkpoint_header.mana_spent;
 
     address proposer = rollup.getCurrentProposer();
@@ -335,7 +337,7 @@ contract PreHeatingTest is FeeModelTestPoints, DecoderBase {
     header.timestamp = ts;
     header.coinbase = c;
     header.feeRecipient = bytes32(0);
-    header.gasFees.feePerL2Gas = manaBaseFee;
+    header.gasFees.feePerL2Gas = manaMinFee;
     header.totalManaUsed = manaSpent;
 
     ProposeArgs memory proposeArgs = ProposeArgs({

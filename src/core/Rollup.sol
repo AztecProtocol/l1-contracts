@@ -2,14 +2,15 @@
 // Copyright 2024 Aztec Labs.
 pragma solidity >=0.8.27;
 
+import {IEscapeHatch} from "@aztec/core/interfaces/IEscapeHatch.sol";
 import {
   IRollup,
   IHaveVersion,
   ChainTips,
   PublicInputArgs,
   L1FeeData,
-  ManaBaseFeeComponents,
-  FeeAssetPerEthE9,
+  ManaMinFeeComponents,
+  EthPerFeeAssetE12,
   CheckpointHeaderValidationFlags,
   FeeHeader,
   RollupConfigInput
@@ -18,7 +19,9 @@ import {IStaking, AttesterConfig, Exit, AttesterView, Status} from "@aztec/core/
 import {IValidatorSelection, IEmperor} from "@aztec/core/interfaces/IValidatorSelection.sol";
 import {IVerifier} from "@aztec/core/interfaces/IVerifier.sol";
 import {TempCheckpointLog, CheckpointLog} from "@aztec/core/libraries/compressed-data/CheckpointLog.sol";
-import {FeeLib, FeeHeaderLib, FeeAssetValue, PriceLib} from "@aztec/core/libraries/rollup/FeeLib.sol";
+import {FeeAssetValue, PriceLib} from "@aztec/core/libraries/compressed-data/fees/FeeConfig.sol";
+import {FeeHeaderLib} from "@aztec/core/libraries/compressed-data/fees/FeeStructs.sol";
+import {FeeLib} from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {ProposedHeader} from "@aztec/core/libraries/rollup/ProposedHeaderLib.sol";
 import {StakingLib} from "@aztec/core/libraries/rollup/StakingLib.sol";
 import {GSE} from "@aztec/governance/GSE.sol";
@@ -94,12 +97,11 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
     bytes32 _blobsHash,
     CheckpointHeaderValidationFlags memory _flags
   ) external override(IRollup) {
-    Timestamp currentTime = Timestamp.wrap(block.timestamp);
     RollupOperationsExtLib.validateHeaderWithAttestations(
       ValidateHeaderArgs({
         header: _header,
         digest: _digest,
-        manaBaseFee: getManaBaseFeeAt(currentTime, true),
+        manaMinFee: getManaMinFeeAt(Timestamp.wrap(block.timestamp), true),
         blobsHashesCommitment: _blobsHash,
         flags: _flags
       }),
@@ -330,6 +332,7 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
       archive: STFLib.getStorage().archives[_checkpointNumber],
       headerHash: tempCheckpointLog.headerHash,
       blobCommitmentsHash: tempCheckpointLog.blobCommitmentsHash,
+      outHash: tempCheckpointLog.outHash,
       attestationsHash: tempCheckpointLog.attestationsHash,
       payloadDigest: tempCheckpointLog.payloadDigest,
       slotNumber: tempCheckpointLog.slotNumber,
@@ -346,8 +349,7 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
   }
 
   function getCurrentBlobCommitmentsHash() external view override(IRollup) returns (bytes32) {
-    RollupStore storage rollupStore = STFLib.getStorage();
-    return STFLib.getBlobCommitmentsHash(rollupStore.tips.getPending());
+    return STFLib.getBlobCommitmentsHash(STFLib.getStorage().tips.getPending());
   }
 
   function getConfig(address _attester) external view override(IStaking) returns (AttesterConfig memory) {
@@ -403,6 +405,14 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
   }
 
   /**
+   * @notice  Get the escape hatch contract
+   * @return The escape hatch contract interface, or zero-address if disabled
+   */
+  function getEscapeHatch() external view override(IValidatorSelection) returns (IEscapeHatch) {
+    return ValidatorOperationsExtLib.getEscapeHatch();
+  }
+
+  /**
    * @notice  Get the sample seed for the current epoch
    *
    * @return The sample seed for the current epoch
@@ -429,6 +439,17 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
    */
   function getTimestampForSlot(Slot _slotNumber) external view override(IValidatorSelection) returns (Timestamp) {
     return _slotNumber.toTimestamp();
+  }
+
+  /**
+   * @notice  Get the timestamp for a given epoch
+   *
+   * @param _epoch - The epoch to get the timestamp for
+   *
+   * @return The timestamp for the start of the given epoch
+   */
+  function getTimestampForEpoch(Epoch _epoch) external view override(IValidatorSelection) returns (Timestamp) {
+    return _epoch.toTimestamp();
   }
 
   /**
@@ -498,7 +519,7 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
   }
 
   function getProvingCostPerManaInFeeAsset() external view override(IRollup) returns (FeeAssetValue) {
-    return FeeLib.getProvingCostPerMana().toFeeAsset(getFeeAssetPerEth());
+    return FeeLib.getProvingCostPerMana().toFeeAsset(getEthPerFeeAsset());
   }
 
   function getVersion() external view override(IHaveVersion) returns (uint256) {
@@ -615,32 +636,33 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
   }
 
   /**
-   * @notice  Gets the mana base fee
+   * @notice  Gets the mana min fee
    *
    * @param _inFeeAsset - Whether to return the fee in the fee asset or ETH
    *
-   * @return The mana base fee
+   * @return The mana min fee
    */
-  function getManaBaseFeeAt(Timestamp _timestamp, bool _inFeeAsset) public view override(IRollup) returns (uint256) {
-    return FeeLib.summedBaseFee(getManaBaseFeeComponentsAt(_timestamp, _inFeeAsset));
+  function getManaMinFeeAt(Timestamp _timestamp, bool _inFeeAsset) public view override(IRollup) returns (uint256) {
+    return FeeLib.summedMinFee(getManaMinFeeComponentsAt(_timestamp, _inFeeAsset));
   }
 
-  function getManaBaseFeeComponentsAt(Timestamp _timestamp, bool _inFeeAsset)
+  function getManaMinFeeComponentsAt(Timestamp _timestamp, bool _inFeeAsset)
     public
     view
     override(IRollup)
-    returns (ManaBaseFeeComponents memory)
+    returns (ManaMinFeeComponents memory)
   {
-    return ProposeLib.getManaBaseFeeComponentsAt(_timestamp, _inFeeAsset);
+    return ProposeLib.getManaMinFeeComponentsAt(_timestamp, _inFeeAsset);
   }
 
   /**
-   * @notice  Gets the fee asset price as fee_asset / eth with 1e9 precision
+   * @notice  Gets the fee asset price as eth / fee_asset with 1e12 precision
+   *          Higher value = more expensive fee asset
    *
    * @return The fee asset price
    */
-  function getFeeAssetPerEth() public view override(IRollup) returns (FeeAssetPerEthE9) {
-    return FeeLib.getFeeAssetPerEthAtCheckpoint(STFLib.getStorage().tips.getPending());
+  function getEthPerFeeAsset() public view override(IRollup) returns (EthPerFeeAssetE12) {
+    return FeeLib.getEthPerFeeAssetAtCheckpoint(STFLib.getStorage().tips.getPending());
   }
 
   function getEpochForCheckpoint(uint256 _checkpointNumber) public view override(IRollup) returns (Epoch) {
