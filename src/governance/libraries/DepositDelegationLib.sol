@@ -191,11 +191,7 @@ library DepositDelegationLib {
    *
    * @return The supply of the instance
    */
-  function getSupplyOf(DepositAndDelegationAccounting storage _self, address _instance)
-    internal
-    view
-    returns (uint256)
-  {
+  function getSupplyOf(DepositAndDelegationAccounting storage _self, address _instance) internal view returns (uint256) {
     return _self.ledgers[_instance].supply.valueNow();
   }
 

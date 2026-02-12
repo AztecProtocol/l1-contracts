@@ -22,7 +22,7 @@ import {Registry} from "@aztec/governance/Registry.sol";
 import {Inbox} from "@aztec/core/messagebridge/Inbox.sol";
 import {Outbox} from "@aztec/core/messagebridge/Outbox.sol";
 import {Errors} from "@aztec/core/libraries/Errors.sol";
-import {Rollup, CheckpointLog} from "@aztec/core/Rollup.sol";
+import {Rollup, BlockLog} from "@aztec/core/Rollup.sol";
 import {
   IRollup,
   IRollupCore,
@@ -52,10 +52,7 @@ import {
   ManaBaseFeeComponents
 } from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {
-  FeeModelTestPoints,
-  TestPoint,
-  FeeHeaderModel,
-  ManaBaseFeeComponentsModel
+  FeeModelTestPoints, TestPoint, FeeHeaderModel, ManaBaseFeeComponentsModel
 } from "test/fees/FeeModelTestPoints.t.sol";
 import {MessageHashUtils} from "@oz/utils/cryptography/MessageHashUtils.sol";
 import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol";
@@ -77,7 +74,7 @@ import {AttestationLibHelper} from "@test/helper_libraries/AttestationLibHelper.
 // solhint-disable comprehensive-interface
 
 contract FakeCanonical is IRewardDistributor {
-  uint256 public constant CHECKPOINT_REWARD = 50e18;
+  uint256 public constant BLOCK_REWARD = 50e18;
   IERC20 public immutable UNDERLYING;
 
   address public canonicalRollup;
@@ -110,10 +107,10 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
   using TimeLib for Timestamp;
   using FeeLib for uint256;
   using FeeLib for ManaBaseFeeComponents;
-  // We need to build a checkpoint that we can submit. We will be using some values from
-  // the empty checkpoints, but otherwise populate using the fee model test points.
+  // We need to build a block that we can submit. We will be using some values from
+  // the empty blocks, but otherwise populate using the fee model test points.
 
-  struct Checkpoint {
+  struct Block {
     ProposeArgs proposeArgs;
     bytes blobInputs;
     CommitteeAttestation[] attestations;
@@ -148,8 +145,8 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
   CommitteeAttestation internal emptyAttestation;
   mapping(address attester => uint256 privateKey) internal attesterPrivateKeys;
 
-  // Track attestations by checkpoint number for proof submission
-  mapping(uint256 => CommitteeAttestations) internal checkpointAttestations;
+  // Track attestations by block number for proof submission
+  mapping(uint256 => CommitteeAttestations) internal blockAttestations;
 
   Multicall3 internal multicall = new Multicall3();
 
@@ -179,11 +176,12 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
     StakingQueueConfig memory stakingQueueConfig = TestConstants.getStakingQueueConfig();
     stakingQueueConfig.normalFlushSizeMin = _validatorCount == 0 ? 1 : _validatorCount;
 
-    RollupBuilder builder = new RollupBuilder(address(this)).setProvingCostPerMana(provingCost)
-      .setManaTarget(MANA_TARGET).setSlotDuration(SLOT_DURATION).setEpochDuration(EPOCH_DURATION).setMintFeeAmount(1e30)
-      .setValidators(initialValidators).setTargetCommitteeSize(_noValidators ? 0 : TARGET_COMMITTEE_SIZE)
-      .setStakingQueueConfig(stakingQueueConfig).setSlashingQuorum(VOTING_ROUND_SIZE)
-      .setSlashingRoundSize(VOTING_ROUND_SIZE);
+    RollupBuilder builder = new RollupBuilder(address(this)).setProvingCostPerMana(provingCost).setManaTarget(
+      MANA_TARGET
+    ).setSlotDuration(SLOT_DURATION).setEpochDuration(EPOCH_DURATION).setMintFeeAmount(1e30).setValidators(
+      initialValidators
+    ).setTargetCommitteeSize(_noValidators ? 0 : TARGET_COMMITTEE_SIZE).setStakingQueueConfig(stakingQueueConfig)
+      .setSlashingQuorum(VOTING_ROUND_SIZE).setSlashingRoundSize(VOTING_ROUND_SIZE);
 
     if (_slashing == TestSlash.TALLY) {
       // For tally slashing, we need a round size that's a multiple of epoch duration
@@ -217,7 +215,7 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
 
   function setUp() public {
     if (vm.envOr("IGNITION", false)) {
-      full = load("empty_checkpoint_1");
+      full = load("empty_block_1");
 
       SLOT_DURATION = 16 * 12;
       EPOCH_DURATION = 48;
@@ -227,7 +225,7 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
 
       IS_IGNITION = true;
     } else {
-      full = load("single_tx_checkpoint_1");
+      full = load("single_tx_block_1");
 
       SLOT_DURATION = 36;
       EPOCH_DURATION = 32;
@@ -268,14 +266,14 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
   }
 
   /**
-   * @notice Constructs a fake checkpoint that is not possible to prove, but passes the L1 checks.
+   * @notice Constructs a fake block that is not possible to prove, but passes the L1 checks.
    */
-  function getCheckpoint() internal returns (Checkpoint memory) {
+  function getBlock() internal returns (Block memory) {
     // We will be using the genesis for both before and after. This will be impossible
     // to prove, but we don't need to prove anything here.
     bytes32 archiveRoot = bytes32(Constants.GENESIS_ARCHIVE_ROOT);
 
-    ProposedHeader memory header = full.checkpoint.header;
+    ProposedHeader memory header = full.block.header;
 
     Slot slotNumber = rollup.getCurrentSlot();
     TestPoint memory point = points[Slot.unwrap(slotNumber) - 1];
@@ -283,7 +281,7 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
     Timestamp ts = rollup.getTimestampForSlot(slotNumber);
 
     uint128 manaBaseFee = SafeCast.toUint128(rollup.getManaBaseFeeAt(Timestamp.wrap(block.timestamp), true));
-    uint256 manaSpent = point.checkpoint_header.mana_spent;
+    uint256 manaSpent = point.block_header.mana_spent;
 
     address proposer = rollup.getCurrentProposer();
     address c = proposer != address(0) ? proposer : coinbase;
@@ -304,6 +302,7 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
     ProposeArgs memory proposeArgs = ProposeArgs({
       header: header,
       archive: archiveRoot,
+      stateReference: EMPTY_STATE_REFERENCE,
       oracleInput: OracleInput({feeAssetPriceModifier: point.oracle_input.fee_asset_price_modifier})
     });
 
@@ -318,8 +317,12 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
 
       bytes32 headerHash = ProposedHeaderLib.hash(proposeArgs.header);
 
-      ProposePayload memory proposePayload =
-        ProposePayload({archive: proposeArgs.archive, oracleInput: proposeArgs.oracleInput, headerHash: headerHash});
+      ProposePayload memory proposePayload = ProposePayload({
+        archive: proposeArgs.archive,
+        stateReference: proposeArgs.stateReference,
+        oracleInput: proposeArgs.oracleInput,
+        headerHash: headerHash
+      });
 
       bytes32 digest = ProposeLib.digest(proposePayload);
 
@@ -357,9 +360,9 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
       ).signature;
     }
 
-    return Checkpoint({
+    return Block({
       proposeArgs: proposeArgs,
-      blobInputs: full.checkpoint.blobCommitments,
+      blobInputs: full.block.blobCommitments,
       attestations: attestations,
       signers: signers,
       attestationsAndSignersSignature: attestationsAndSignersSignature
@@ -448,8 +451,8 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
     return Signature({v: v, r: r, s: s});
   }
 
-  function proposeWithTallyVote(Checkpoint memory b, address proposer) internal {
-    // First propose the checkpoint
+  function proposeWithTallyVote(Block memory b, address proposer) internal {
+    // First propose the block
     CommitteeAttestations memory attestations = AttestationLibHelper.packAttestations(b.attestations);
 
     uint256 committeeSize = rollup.getEpochCommittee(rollup.getCurrentEpoch()).length;
@@ -479,11 +482,11 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
     Epoch nextEpoch = Epoch.wrap(4);
     bool warmedUp = false;
 
-    uint256 stopAtCheckpoint = IS_IGNITION ? 200 : 150;
+    uint256 stopAtBlock = IS_IGNITION ? 200 : 150;
 
     // Loop through all of the L1 metadata
     for (uint256 i = 0; i < l1Metadata.length; i++) {
-      if (rollup.getPendingCheckpointNumber() >= stopAtCheckpoint) {
+      if (rollup.getPendingBlockNumber() >= stopAtBlock) {
         break;
       }
 
@@ -496,20 +499,20 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
         warmedUp = true;
       }
 
-      // For every "new" slot we encounter, we construct a checkpoint using current L1 Data
-      // and part of the `empty_checkpoint_1.json` file. The checkpoint cannot be proven, but it
-      // will be accepted as a proposal so very useful for testing a long range of checkpoints.
+      // For every "new" slot we encounter, we construct a block using current L1 Data
+      // and part of the `empty_block_1.json` file. The block cannot be proven, but it
+      // will be accepted as a proposal so very useful for testing a long range of blocks.
       if (rollup.getCurrentSlot() == nextSlot) {
         rollup.setupEpoch();
 
-        Checkpoint memory b = getCheckpoint();
+        Block memory b = getBlock();
         address proposer = rollup.getCurrentProposer();
 
         skipBlobCheck(address(rollup));
 
-        // Store the attestations for the current checkpoint number
-        uint256 currentCheckpointNumber = rollup.getPendingCheckpointNumber() + 1;
-        checkpointAttestations[currentCheckpointNumber] = AttestationLibHelper.packAttestations(b.attestations);
+        // Store the attestations for the current block number
+        uint256 currentBlockNumber = rollup.getPendingBlockNumber() + 1;
+        blockAttestations[currentBlockNumber] = AttestationLibHelper.packAttestations(b.attestations);
 
         if (_slashing == TestSlash.EMPIRE) {
           Signature memory sig = createEmpireSignalSignature(proposer, slashPayload, rollup.getCurrentSlot());
@@ -567,12 +570,12 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
       // Ensure that the fees are split correctly between sequencers and burns etc.
       if (rollup.getCurrentEpoch() == nextEpoch) {
         nextEpoch = nextEpoch + Epoch.wrap(1);
-        uint256 pendingCheckpointNumber = rollup.getPendingCheckpointNumber();
-        uint256 start = rollup.getProvenCheckpointNumber() + 1;
+        uint256 pendingBlockNumber = rollup.getPendingBlockNumber();
+        uint256 start = rollup.getProvenBlockNumber() + 1;
         uint256 epochSize = 0;
         while (
-          start + epochSize <= pendingCheckpointNumber
-            && rollup.getEpochForCheckpoint(start) == rollup.getEpochForCheckpoint(start + epochSize)
+          start + epochSize <= pendingBlockNumber
+            && rollup.getEpochForBlock(start) == rollup.getEpochForBlock(start + epochSize)
         ) {
           epochSize++;
         }
@@ -590,8 +593,8 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
         }
 
         PublicInputArgs memory args = PublicInputArgs({
-          previousArchive: rollup.getCheckpoint(start).archive,
-          endArchive: rollup.getCheckpoint(start + epochSize - 1).archive,
+          previousArchive: rollup.getBlock(start).archive,
+          endArchive: rollup.getBlock(start + epochSize - 1).archive,
           proverId: address(0)
         });
 
@@ -601,8 +604,8 @@ contract BenchmarkRollupTest is FeeModelTestPoints, DecoderBase {
             end: start + epochSize - 1,
             args: args,
             fees: fees,
-            attestations: checkpointAttestations[start + epochSize - 1],
-            blobInputs: full.checkpoint.batchedBlobInputs,
+            attestations: blockAttestations[start + epochSize - 1],
+            blobInputs: full.block.batchedBlobInputs,
             proof: ""
           });
 

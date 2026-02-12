@@ -3,9 +3,8 @@
 pragma solidity >=0.8.27;
 
 import {RollupStore, SubmitEpochRootProofArgs} from "@aztec/core/interfaces/IRollup.sol";
-import {CompressedFeeHeader, FeeHeaderLib} from "@aztec/core/libraries/compressed-data/fees/FeeStructs.sol";
 import {Errors} from "@aztec/core/libraries/Errors.sol";
-import {FeeLib} from "@aztec/core/libraries/rollup/FeeLib.sol";
+import {CompressedFeeHeader, FeeHeaderLib, FeeLib} from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {STFLib} from "@aztec/core/libraries/rollup/STFLib.sol";
 import {Epoch, Timestamp, TimeLib} from "@aztec/core/libraries/TimeLib.sol";
 import {IBoosterCore} from "@aztec/core/reward-boost/RewardBooster.sol";
@@ -40,7 +39,7 @@ struct RewardConfig {
   IRewardDistributor rewardDistributor;
   Bps sequencerBps;
   IBoosterCore booster;
-  uint96 checkpointReward;
+  uint96 blockReward;
 }
 
 struct RewardStorage {
@@ -56,7 +55,7 @@ struct Values {
   address sequencer;
   uint256 proverFee;
   uint256 sequencerFee;
-  uint256 sequencerCheckpointReward;
+  uint256 sequencerBlockReward;
   uint256 manaUsed;
 }
 
@@ -77,8 +76,7 @@ library RewardLib {
 
   bytes32 private constant REWARD_STORAGE_POSITION = keccak256("aztec.reward.storage");
 
-  // A Cuauhxicalli [kʷaːʍʃiˈkalːi] ("eagle gourd bowl") is a ceremonial Aztec vessel or altar used to hold
-  // offerings,
+  // A Cuauhxicalli [kʷaːʍʃiˈkalːi] ("eagle gourd bowl") is a ceremonial Aztec vessel or altar used to hold offerings,
   // such as sacrificial hearts, during rituals performed within temples.
   address public constant BURN_ADDRESS = address(bytes20("CUAUHXICALLI"));
 
@@ -185,33 +183,29 @@ library RewardLib {
 
       {
         uint256 added = length - $er.longestProvenLength;
-        uint256 checkpointRewardsDesired = added * getCheckpointReward();
-        uint256 checkpointRewardsAvailable = 0;
+        uint256 blockRewardsDesired = added * getBlockReward();
+        uint256 blockRewardsAvailable = 0;
 
-        // Only if we require checkpoint rewards and are canonical will we claim.
-        if (checkpointRewardsDesired > 0) {
+        // Only if we require block rewards and are canonical will we claim.
+        if (blockRewardsDesired > 0) {
           // Cache the reward distributor contract
           IRewardDistributor distributor = rewardStorage.config.rewardDistributor;
 
           if (address(this) == distributor.canonicalRollup()) {
             uint256 amountToClaim =
-              Math.min(checkpointRewardsDesired, rollupStore.config.feeAsset.balanceOf(address(distributor)));
+              Math.min(blockRewardsDesired, rollupStore.config.feeAsset.balanceOf(address(distributor)));
 
             if (amountToClaim > 0) {
               distributor.claim(address(this), amountToClaim);
-              checkpointRewardsAvailable = amountToClaim;
+              blockRewardsAvailable = amountToClaim;
             }
           }
         }
 
-        uint256 sequenceCheckpointRewards = BpsLib.mul(checkpointRewardsAvailable, rewardStorage.config.sequencerBps);
-        v.sequencerCheckpointReward = sequenceCheckpointRewards / added;
+        uint256 sequenceBlockRewards = BpsLib.mul(blockRewardsAvailable, rewardStorage.config.sequencerBps);
+        v.sequencerBlockReward = sequenceBlockRewards / added;
 
-        uint256 dust = sequenceCheckpointRewards - (v.sequencerCheckpointReward * added);
-        uint256 proverCheckpointRewards = checkpointRewardsAvailable - sequenceCheckpointRewards + dust;
-        if (proverCheckpointRewards > 0) {
-          $er.rewards += proverCheckpointRewards.toUint128();
-        }
+        $er.rewards += (blockRewardsAvailable - sequenceBlockRewards).toUint128();
       }
 
       bool isTxsEnabled = FeeLib.isTxsEnabled();
@@ -240,10 +234,7 @@ library RewardLib {
 
         {
           v.sequencer = fieldToAddress(_args.fees[i * 2]);
-          uint256 toSequencer = v.sequencerCheckpointReward + v.sequencerFee;
-          if (toSequencer > 0) {
-            rewardStorage.sequencerRewards[v.sequencer] += toSequencer;
-          }
+          rewardStorage.sequencerRewards[v.sequencer] += (v.sequencerBlockReward + v.sequencerFee);
         }
       }
 
@@ -279,8 +270,8 @@ library RewardLib {
     return getStorage().proverClaimed[_prover].get(Epoch.unwrap(_epoch));
   }
 
-  function getCheckpointReward() internal view returns (uint256) {
-    return getStorage().config.checkpointReward;
+  function getBlockReward() internal view returns (uint256) {
+    return getStorage().config.blockReward;
   }
 
   function getSpecificProverRewardsForEpoch(Epoch _epoch, address _prover) internal view returns (uint256) {

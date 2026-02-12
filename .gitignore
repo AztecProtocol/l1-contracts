@@ -20,9 +20,6 @@ lcov.info
 # Local foundry env
 .foundry
 
-# Downloaded solc binary
-solc-*
-
 # Yarn lockfile
 yarn.lock
 .yarn/
