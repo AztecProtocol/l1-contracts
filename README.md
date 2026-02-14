@@ -10,16 +10,16 @@ Alternatively you can use docker instead, it will handle installations and run t
 
 ## Structure
 
-The `src` folder contain contracts that is to be used by the local developer testnet. It is grouped into 3 categories:
+The `src` folder contains contracts that is to be used by the local developer testnet. It is grouped into 3 categories:
 
 - `core` contains the required contracts, the bare minimum.
 - `governance` contains the contracts for the governance system.
-- `mock` contains stubs, for now an always true verifier.
+- `mock` contains stubs — for now, an always-true verifier.
 - `periphery` stuff that is nice to have, convenience contracts and functions belong in here.
 
 ## Running tests
 
-The tests are located in the `test` folder, and execute two consecutive L2Blocks. The blocks and the values they are checked against is generated using the block builder tests (there also is a typescript test in `l2-block-publisher.test.ts` that tests E2E). The tests are currently limited in functionality as it is mainly decoding happening, but will expand over time to include L1 <-> L2 communication and cross chain applications.
+The tests are located in the `test` folder, and execute two consecutive L2Blocks. The blocks and the values they are checked against are generated using the block builder tests (there also is a typescript test in `l2-block-publisher.test.ts` that tests E2E). The tests are currently limited in functionality as it is mainly decoding happening, but will expand over time to include L1 <-> L2 communication and cross chain applications.
 
 As mentioned earlier, you can also use docker. If you rerun `docker build .` after changing the contracts, it will use a cache for most values, and rerun your tests in a few seconds.
 
@@ -36,7 +36,7 @@ We use `forge fmt` to format. But follow a few general guidelines beyond the sta
 
 You can run `./bootstrap.sh gas_report` to generate a detailed gas report for the current state and update the gas_report.md file.
 
-If you want something more manageble you should be using the `./boostrap.sh gas_benchmark` which will give you some "happy path" gas numbers for set with and without validators in a format that might be slightly simpler to figure out. The values outputted from this can also be seen over time at https://aztecprotocol.github.io/aztec-packages/dev/l1-gas-bench/.
+If you want something more manageable you should be using the `./bootstrap.sh gas_benchmark` which will give you some "happy path" gas numbers for set with and without validators in a format that might be slightly simpler to figure out. The values outputted from this can also be seen over time at https://aztecprotocol.github.io/aztec-packages/dev/l1-gas-bench/.
 
 When running CI or tests with `./bootstrap.sh test`, the script will automatically check if gas usage has changed by running `./bootstrap.sh gas_report check`. If gas usage has changed, the test will fail and show a diff of the changes.
 
@@ -53,7 +53,7 @@ NOTE: Our gas reporting excludes certain tests due to Forge limitations:
 
 This is related to [this Foundry issue](https://github.com/foundry-rs/foundry/issues/10074).
 
-This means that we don't report gas for blob validation (currently 50k gas per blob, and we use 3 blobs per propose in production).
+This means that we don't report gas for blob validation (currently 50k gas per blob, and we use 3 blobs per proposal in production).
 
 If you want to run gas reports directly with `forge`, you must use the environment variable `FORGE_GAS_REPORT=true` instead of the `--gas-report` flag. The `./bootstrap.sh gas_report` command does this for you automatically.
 
@@ -128,7 +128,7 @@ $ solhint --config ./.solhint.json "src/**/*.sol"
 [solhint] Warning: Rule 'strict-override' doesn't exist
 ```
 
-It is likely that it is a old cached version of the linter that is being used, you can update it as:
+It is likely that it is an old cached version of the linter that is being used, you can update it as:
 
 ```bash
 yarn add https://github.com/LHerskind/solhint\#master
@@ -144,7 +144,7 @@ We use slither as an automatic way to find blunders and common vulnerabilities i
 yarn slither
 ```
 
-When this command is run in CI, it will fail if the markdown file generated in docker don't match the one in the repository.
+When this command is run in CI, it will fail if the markdown file generated in docker doesn't match the one in the repository.
 
 We assume that you already have slither installed. You can install it with `pip3 install slither-analyzer==0.10.0 slitherin==0.5.0`. It is kept out of the bootstrap script as it is not a requirement for people who just want to run tests or are uninterested in the contracts.
 
