@@ -1,6 +1,6 @@
 {
   "name": "@aztec/l1-contracts",
-  "version": "0.0.1-commit.21ecf947b",
+  "version": "0.0.1-commit.cf93bcc56",
   "type": "module",
   "license": "Apache-2.0",
   "description": "Aztec contracts for the Ethereum mainnet and testnets",
