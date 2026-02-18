@@ -30,7 +30,8 @@ contract GovScript is Test {
   address internal constant ME = address(0xf8d7d601759CBcfB78044bA7cA9B0c0D6301A54f);
 
   Governance public constant governance = Governance(0xEE63E102E35F24c34b9eA09B597ACFb491c94e78);
-  GovernanceProposer public constant governanceProposer = GovernanceProposer(0xF4bf5dF1c3B2dd67A0525Fc600E98ca51143a67D);
+  GovernanceProposer public constant governanceProposer =
+    GovernanceProposer(0xF4bf5dF1c3B2dd67A0525Fc600E98ca51143a67D);
   TestERC20 public constant stakingAsset = TestERC20(0x5C30c66847866A184ccb5197cBE31Fce7A92eB26);
   TestERC20 public constant feeAsset = TestERC20(0x487Ff89A8bDAEFeA2Ad10D3e23727ccdA8F845B9);
   FeeAssetHandler public constant feeAssetHandler = FeeAssetHandler(0x80d848Dc9F52DF56789e2d62Ce66F19555FF1019);
@@ -65,17 +66,15 @@ contract GovScript is Test {
     emit log_named_decimal_uint("\tMint Amount", feeAssetHandler.mintAmount(), 18);
 
     emit log_named_address("# Staking Asset", address(stakingAsset));
-    emit log_named_uint("\tMint Interval    ", stakingAssetHandler.mintInterval());
-    emit log_named_uint("\tDeposits Per Mint", stakingAssetHandler.depositsPerMint());
+    emit log_named_decimal_uint("\tFaucet Amount    ", stakingAssetHandler.faucetAmount(), 18);
     emit log_named_address("\tRollup           ", address(stakingAssetHandler.getRollup()));
-    emit log_named_address("\tWithdrawer       ", address(stakingAssetHandler.withdrawer()));
 
     emit log_named_address("# Rollup", address(rollup));
-    uint256 baseFee = rollup.getManaBaseFeeAt(Timestamp.wrap(block.timestamp), true);
-    emit log_named_uint("\tBase fee", baseFee);
+    uint256 minFee = rollup.getManaMinFeeAt(Timestamp.wrap(block.timestamp), true);
+    emit log_named_uint("\tMin fee", minFee);
     emit log_named_address("\tOwner", Ownable(address(rollup)).owner());
-    emit log_named_uint("\tPending block number", rollup.getPendingBlockNumber());
-    emit log_named_uint("\tProven block number ", rollup.getProvenBlockNumber());
+    emit log_named_uint("\tPending checkpoint number", rollup.getPendingCheckpointNumber());
+    emit log_named_uint("\tProven checkpoint number ", rollup.getProvenCheckpointNumber());
     emit log_named_uint("\tNumber of attestors ", IStaking(address(rollup)).getActiveAttesterCount());
     emit log_named_decimal_uint("\tMinimum stake", IStaking(address(rollup)).getActivationThreshold(), 18);
 
@@ -174,12 +173,12 @@ contract GovScript is Test {
 
     TestERC20 asset = TestERC20(address(rewardDistributor.ASSET()));
     IRollup canonicalRollup = IRollup(address(registry.getCanonicalRollup()));
-    uint256 blockReward = canonicalRollup.getBlockReward();
+    uint256 checkpointReward = canonicalRollup.getCheckpointReward();
 
     emit log_named_decimal_uint("Reward distributor balance", asset.balanceOf(address(rewardDistributor)), 18);
 
     vm.startBroadcast(ME);
-    asset.mint(address(rewardDistributor), 200_000 * blockReward);
+    asset.mint(address(rewardDistributor), 200_000 * checkpointReward);
     vm.stopBroadcast();
 
     emit log_named_decimal_uint("Reward distributor balance", asset.balanceOf(address(rewardDistributor)), 18);
@@ -206,28 +205,13 @@ contract GovScript is Test {
 
   // This should be called to update the staking asset handler config when the rollup is updated
   function updateStakingAssetHandlerConfig() public {
-    uint256 mintInterval = 60 * 60 * 24;
-    uint256 depositsPerMint = 100;
+    uint256 newFaucetAmount = 1_000_000 * 1e18; // 1M STK
     address amin = 0x3b218d0F26d15B36C715cB06c949210a0d630637;
 
-    // Update the deposits per mint if it differs
-    if (stakingAssetHandler.mintInterval() != mintInterval) {
+    // Update the faucet amount if it differs
+    if (stakingAssetHandler.faucetAmount() != newFaucetAmount) {
       vm.startBroadcast(ME);
-      stakingAssetHandler.setMintInterval(mintInterval);
-      vm.stopBroadcast();
-    }
-
-    // Update the deposits per mint if it differs
-    if (stakingAssetHandler.depositsPerMint() != depositsPerMint) {
-      vm.startBroadcast(ME);
-      stakingAssetHandler.setDepositsPerMint(depositsPerMint);
-      vm.stopBroadcast();
-    }
-
-    // Update the withdrawer if it's not amin
-    if (stakingAssetHandler.withdrawer() != amin) {
-      vm.startBroadcast(ME);
-      stakingAssetHandler.setWithdrawer(amin);
+      stakingAssetHandler.setFaucetAmount(newFaucetAmount);
       vm.stopBroadcast();
     }
 

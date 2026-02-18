@@ -11,7 +11,7 @@ import {Slot, Epoch} from "@aztec/core/libraries/TimeLib.sol";
 import {TimeLib} from "@aztec/core/libraries/TimeLib.sol";
 import {Slasher} from "@aztec/core/slashing/Slasher.sol";
 import {IPayload} from "@aztec/governance/interfaces/IPayload.sol";
-import {SlasherFlavor} from "@aztec/core/interfaces/ISlasher.sol";
+import {ISlasher, SlasherFlavor} from "@aztec/core/interfaces/ISlasher.sol";
 import {TallySlashingProposer} from "@aztec/core/slashing/TallySlashingProposer.sol";
 import {SlashRound} from "@aztec/core/libraries/SlashRoundLib.sol";
 import {MultiAdder, CheatDepositArgs} from "@aztec/mock/MultiAdder.sol";
@@ -83,14 +83,11 @@ contract TallySlashingProposerTest is TestBase {
       });
     }
 
-    RollupBuilder builder = new RollupBuilder(address(this)).setValidators(initialValidators).setTargetCommitteeSize(
-      COMMITTEE_SIZE
-    ).setSlashingQuorum(QUORUM).setSlashingRoundSize(ROUND_SIZE).setSlashingLifetimeInRounds(LIFETIME_IN_ROUNDS)
-      .setSlashingExecutionDelayInRounds(EXECUTION_DELAY_IN_ROUNDS).setEpochDuration(EPOCH_DURATION).setSlashAmountSmall(
-      SLASHING_UNIT
-    ).setSlashAmountMedium(SLASHING_UNIT * 2).setSlashAmountLarge(SLASHING_UNIT * 3).setSlasherFlavor(
-      SlasherFlavor.TALLY
-    );
+    RollupBuilder builder = new RollupBuilder(address(this)).setValidators(initialValidators)
+      .setTargetCommitteeSize(COMMITTEE_SIZE).setSlashingQuorum(QUORUM).setSlashingRoundSize(ROUND_SIZE)
+      .setSlashingLifetimeInRounds(LIFETIME_IN_ROUNDS).setSlashingExecutionDelayInRounds(EXECUTION_DELAY_IN_ROUNDS)
+      .setEpochDuration(EPOCH_DURATION).setSlashAmountSmall(SLASHING_UNIT).setSlashAmountMedium(SLASHING_UNIT * 2)
+      .setSlashAmountLarge(SLASHING_UNIT * 3).setSlasherFlavor(SlasherFlavor.TALLY);
     builder.deploy();
 
     rollup = builder.getConfig().rollup;
@@ -106,8 +103,8 @@ contract TallySlashingProposerTest is TestBase {
       TestConstants.AZTEC_PROOF_SUBMISSION_EPOCHS
     );
 
-    // Jump forward 2 epochs for sampling delay
-    timeCheater.cheat__jumpForwardEpochs(2);
+    // Jump forward for sampling delay
+    timeCheater.cheat__jumpForwardEpochs(rollup.getLagInEpochsForValidatorSet());
 
     assertEq(rollup.getActiveAttesterCount(), validatorCount, "Invalid attester count");
   }
@@ -128,7 +125,11 @@ contract TallySlashingProposerTest is TestBase {
     return voteData;
   }
 
-  function _createSignature(uint256 privateKey, Slot slot, bytes memory votes) internal view returns (Signature memory) {
+  function _createSignature(uint256 privateKey, Slot slot, bytes memory votes)
+    internal
+    view
+    returns (Signature memory)
+  {
     // Get the EIP-712 signature digest from the contract
     bytes32 digest = slashingProposer.getVoteSignatureDigest(votes, slot);
 
@@ -184,12 +185,12 @@ contract TallySlashingProposerTest is TestBase {
 
   function _assertVoteCount(uint256 expectedCount) internal view {
     SlashRound slashRound = slashingProposer.getCurrentRound();
-    (,, uint256 voteCount) = slashingProposer.getRound(slashRound);
+    (, uint256 voteCount) = slashingProposer.getRound(slashRound);
     assertEq(voteCount, expectedCount, "Unexpected vote count");
   }
 
   function _assertVoteCount(SlashRound slashRound, uint256 expectedCount) internal view {
-    (,, uint256 voteCount) = slashingProposer.getRound(slashRound);
+    (, uint256 voteCount) = slashingProposer.getRound(slashRound);
     assertEq(voteCount, expectedCount, "Unexpected vote count");
   }
 
@@ -216,8 +217,9 @@ contract TallySlashingProposerTest is TestBase {
     // Verify round data was updated
     SlashRound currentSlashRound = slashingProposer.getCurrentRound();
     assertEq(SlashRound.unwrap(currentSlashRound), FIRST_SLASH_ROUND, "Unexpected current slash round");
-    (bool isExecuted, bool readyToExecute, uint256 voteCount) = slashingProposer.getRound(currentSlashRound);
+    (bool isExecuted, uint256 voteCount) = slashingProposer.getRound(currentSlashRound);
     assertFalse(isExecuted, "Round should not be executed yet");
+    bool readyToExecute = slashingProposer.isRoundReadyToExecute(currentSlashRound, rollup.getCurrentSlot());
     assertFalse(readyToExecute, "Should not be ready to execute until after execution delay");
     assertEq(voteCount, 1, "Unexpected vote count after casting vote");
   }
@@ -388,7 +390,7 @@ contract TallySlashingProposerTest is TestBase {
     assertEq(finalView.effectiveBalance, initialBalance - (3 * SLASHING_UNIT));
 
     // Verify round is marked as executed
-    (bool isExecuted,,) = slashingProposer.getRound(targetSlashRound);
+    (bool isExecuted,) = slashingProposer.getRound(targetSlashRound);
     assertTrue(isExecuted);
   }
 
@@ -452,7 +454,7 @@ contract TallySlashingProposerTest is TestBase {
     }
 
     // Verify round is marked as executed
-    (bool isExecuted,,) = slashingProposer.getRound(targetSlashRound);
+    (bool isExecuted,) = slashingProposer.getRound(targetSlashRound);
     assertTrue(isExecuted);
   }
 
@@ -490,8 +492,9 @@ contract TallySlashingProposerTest is TestBase {
     SlashRound targetSlashRound = slashingProposer.getCurrentRound();
 
     // Initially no votes, not ready to execute
-    (bool isExecuted, bool readyToExecute, uint256 voteCount) = slashingProposer.getRound(targetSlashRound);
+    (bool isExecuted, uint256 voteCount) = slashingProposer.getRound(targetSlashRound);
     assertFalse(isExecuted);
+    bool readyToExecute = slashingProposer.isRoundReadyToExecute(targetSlashRound, rollup.getCurrentSlot());
     assertFalse(readyToExecute);
     assertEq(voteCount, 0);
 
@@ -499,8 +502,9 @@ contract TallySlashingProposerTest is TestBase {
     _castVote();
 
     // After vote, should have vote count
-    (isExecuted, readyToExecute, voteCount) = slashingProposer.getRound(targetSlashRound);
+    (isExecuted, voteCount) = slashingProposer.getRound(targetSlashRound);
     assertFalse(isExecuted);
+    readyToExecute = slashingProposer.isRoundReadyToExecute(targetSlashRound, rollup.getCurrentSlot());
     assertFalse(readyToExecute); // Still not ready due to execution delay
     assertEq(voteCount, 1);
 
@@ -509,8 +513,9 @@ contract TallySlashingProposerTest is TestBase {
     timeCheater.cheat__jumpToSlot(targetSlot);
 
     // Now should be ready to execute
-    (isExecuted, readyToExecute, voteCount) = slashingProposer.getRound(targetSlashRound);
+    (isExecuted, voteCount) = slashingProposer.getRound(targetSlashRound);
     assertFalse(isExecuted);
+    readyToExecute = slashingProposer.isRoundReadyToExecute(targetSlashRound, rollup.getCurrentSlot());
     assertTrue(readyToExecute);
     assertEq(voteCount, 1);
   }
@@ -596,6 +601,83 @@ contract TallySlashingProposerTest is TestBase {
       )
     );
     slashingProposer.getRound(futureSlashRound);
+  }
+
+  function test_getVotesRevertsForOutOfRangeRound() public {
+    // Test that getVotes reverts for rounds outside the valid roundabout range.
+    // Before the range check was added to _getRoundVotes, getVotes would silently
+    // return whatever stale data was at the storage slot - potentially data from
+    // a completely different round that mapped to the same circular index.
+    _jumpToSlashRound(10);
+    SlashRound baseRound = slashingProposer.getCurrentRound();
+
+    // Cast a vote with a recognizable pattern
+    uint8[] memory slashAmounts = new uint8[](COMMITTEE_SIZE * ROUND_SIZE_IN_EPOCHS);
+    slashAmounts[0] = 3;
+    slashAmounts[1] = 2;
+    _castVote(slashAmounts);
+
+    // Confirm we can read the vote data now
+    bytes memory storedVote = slashingProposer.getVotes(baseRound, 0);
+    bytes memory expectedVote = _createVoteData(slashAmounts);
+    assertEq(storedVote, expectedVote, "Vote data should match before jump");
+
+    // Jump far enough that baseRound falls outside the roundabout range
+    uint256 roundaboutSize = slashingProposer.ROUNDABOUT_SIZE();
+    _jumpToSlashRound(SlashRound.unwrap(baseRound) + roundaboutSize);
+
+    // getVotes on the now-out-of-range round should revert
+    vm.expectPartialRevert(Errors.TallySlashingProposer__RoundOutOfRange.selector);
+    slashingProposer.getVotes(baseRound, 0);
+  }
+
+  function test_getVotesReturnsEmptyForStaleRound() public {
+    // Verifies that getVotes returns zeroed-out bytes (not stale data) for a round
+    // that was never written to, even though the underlying circular storage slot
+    // still contains data from a previous round. getVotes consults _getRoundData
+    // which detects the staleness via the stored roundNumber, sees voteCount == 0,
+    // and returns empty bytes before touching storage.
+    _jumpToSlashRound(10);
+    SlashRound baseRound = slashingProposer.getCurrentRound();
+
+    // Cast a vote with a recognizable pattern in baseRound
+    uint8[] memory slashAmounts = new uint8[](COMMITTEE_SIZE * ROUND_SIZE_IN_EPOCHS);
+    slashAmounts[0] = 3;
+    slashAmounts[1] = 2;
+    slashAmounts[2] = 1;
+    _castVote(slashAmounts);
+
+    bytes memory expectedVote = _createVoteData(slashAmounts);
+
+    // Confirm vote data is present
+    bytes memory storedBefore = slashingProposer.getVotes(baseRound, 0);
+    assertEq(storedBefore, expectedVote, "Vote data should be present for baseRound");
+
+    // Jump exactly ROUNDABOUT_SIZE rounds ahead. The new round maps to the same
+    // storage slot but has never been written to.
+    uint256 roundaboutSize = slashingProposer.ROUNDABOUT_SIZE();
+    SlashRound staleRound = SlashRound.wrap(SlashRound.unwrap(baseRound) + roundaboutSize);
+    _jumpToSlashRound(SlashRound.unwrap(staleRound));
+
+    // getRound correctly reports 0 votes (via _getRoundData staleness check)
+    (, uint256 voteCount) = slashingProposer.getRound(staleRound);
+    assertEq(voteCount, 0, "getRound should report 0 votes for the unwritten round");
+
+    // getVotes should return zeroed-out bytes, not the stale data from baseRound
+    uint256 expectedLength = COMMITTEE_SIZE * ROUND_SIZE_IN_EPOCHS / 4;
+    bytes memory emptyVote = new bytes(expectedLength);
+    bytes memory result = slashingProposer.getVotes(staleRound, 0);
+    assertEq(result, emptyVote, "getVotes should return empty bytes for stale round");
+  }
+
+  function test_getVotesRevertsForFutureRound() public {
+    // getVotes should revert when asked about a round in the future
+    _jumpToSlashRound(10);
+    SlashRound currentRound = slashingProposer.getCurrentRound();
+    SlashRound futureRound = SlashRound.wrap(SlashRound.unwrap(currentRound) + 1);
+
+    vm.expectPartialRevert(Errors.TallySlashingProposer__RoundOutOfRange.selector);
+    slashingProposer.getVotes(futureRound, 0);
   }
 
   function test_voteStorageAndLoadingRoundTrip() public {
@@ -765,7 +847,7 @@ contract TallySlashingProposerTest is TestBase {
 
     // Verify vote count
     SlashRound currentRound = slashingProposer.getCurrentRound();
-    (,, uint256 voteCount) = slashingProposer.getRound(currentRound);
+    (, uint256 voteCount) = slashingProposer.getRound(currentRound);
     assertEq(voteCount, maxVotes, "Vote count incorrect");
 
     // Jump to execution time
@@ -863,6 +945,107 @@ contract TallySlashingProposerTest is TestBase {
         assertEq(actions[i].slashAmount, 1 * SLASHING_UNIT, "Validator 2 should be slashed for 1 unit");
       }
     }
+  }
+
+  function test_executeRoundWithEmptyCommittee() public {
+    // Round FIRST_SLASH_ROUND targets epochs 0 and 1, which have no committees
+    // because they precede the validator set sampling lag.
+    //
+    // Before the fix, casting votes that reach quorum for validator slots in these
+    // committee-less epochs would cause executeRound (and getTally) to revert with
+    // an array out-of-bounds access when indexing _committees[epochIndex][validatorIndex].
+    _jumpToSlashRound(FIRST_SLASH_ROUND);
+    SlashRound targetRound = slashingProposer.getCurrentRound();
+
+    // Cast QUORUM votes with max slash for ALL validator slots, including those
+    // corresponding to epochs without valid committees.
+    uint8[] memory slashAmounts = new uint8[](COMMITTEE_SIZE * ROUND_SIZE_IN_EPOCHS);
+    for (uint256 i = 0; i < slashAmounts.length; i++) {
+      slashAmounts[i] = 3;
+    }
+
+    for (uint256 i = 0; i < QUORUM; i++) {
+      _castVote(slashAmounts);
+      if (i < QUORUM - 1) {
+        timeCheater.cheat__progressSlot();
+      }
+    }
+
+    // Jump past execution delay
+    uint256 targetSlot = (SlashRound.unwrap(targetRound) + EXECUTION_DELAY_IN_ROUNDS + 1) * ROUND_SIZE;
+    timeCheater.cheat__jumpToSlot(targetSlot);
+
+    // Verify that both targeted epochs have empty committees
+    address[][] memory committees = slashingProposer.getSlashTargetCommittees(targetRound);
+    assertEq(committees[0].length, 0, "Epoch 0 should have empty committee");
+    assertEq(committees[1].length, 0, "Epoch 1 should have empty committee");
+
+    // getTally should not revert and should return 0 actions
+    TallySlashingProposer.SlashAction[] memory actions = slashingProposer.getTally(targetRound, committees);
+    assertEq(actions.length, 0, "Should have no slash actions for empty committees");
+
+    // executeRound should also succeed
+    slashingProposer.executeRound(targetRound, committees);
+
+    // Verify round is marked as executed
+    (bool isExecuted,) = slashingProposer.getRound(targetRound);
+    assertTrue(isExecuted, "Round should be marked as executed");
+  }
+
+  function test_revertWhenSlashAmountIsZero() public {
+    // The ordering constraints (small <= medium <= large) checked before the > 0 checks mean that
+    // setting medium=0 or large=0 forces the smaller amounts to zero as well, so only the "small"
+    // check is reachable in practice. The medium and large checks exist as defense in depth in case
+    // the ordering constraints are removed or reordered in a future refactor.
+    // All three cases below therefore revert with the "small" info string.
+    uint256[3] memory slashAmounts = [uint256(0), SLASHING_UNIT * 2, SLASHING_UNIT * 3];
+
+    // small = 0
+    vm.expectRevert(abi.encodeWithSelector(Errors.TallySlashingProposer__SlashAmountMustBeGtZero.selector, "small"));
+    new TallySlashingProposer(
+      address(rollup),
+      ISlasher(address(slasher)),
+      QUORUM,
+      ROUND_SIZE,
+      LIFETIME_IN_ROUNDS,
+      EXECUTION_DELAY_IN_ROUNDS,
+      slashAmounts,
+      COMMITTEE_SIZE,
+      EPOCH_DURATION,
+      SLASH_OFFSET_IN_ROUNDS
+    );
+
+    // medium = 0 (ordering forces small = 0, so "small" check fires first)
+    slashAmounts[1] = 0;
+    vm.expectRevert(abi.encodeWithSelector(Errors.TallySlashingProposer__SlashAmountMustBeGtZero.selector, "small"));
+    new TallySlashingProposer(
+      address(rollup),
+      ISlasher(address(slasher)),
+      QUORUM,
+      ROUND_SIZE,
+      LIFETIME_IN_ROUNDS,
+      EXECUTION_DELAY_IN_ROUNDS,
+      slashAmounts,
+      COMMITTEE_SIZE,
+      EPOCH_DURATION,
+      SLASH_OFFSET_IN_ROUNDS
+    );
+
+    // large = 0 (ordering forces all to 0, so "small" check fires first)
+    slashAmounts[2] = 0;
+    vm.expectRevert(abi.encodeWithSelector(Errors.TallySlashingProposer__SlashAmountMustBeGtZero.selector, "small"));
+    new TallySlashingProposer(
+      address(rollup),
+      ISlasher(address(slasher)),
+      QUORUM,
+      ROUND_SIZE,
+      LIFETIME_IN_ROUNDS,
+      EXECUTION_DELAY_IN_ROUNDS,
+      slashAmounts,
+      COMMITTEE_SIZE,
+      EPOCH_DURATION,
+      SLASH_OFFSET_IN_ROUNDS
+    );
   }
 
   function test_getSlashTargetCommitteesEarlyEpochs() public {

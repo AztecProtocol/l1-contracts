@@ -165,6 +165,11 @@ contract RollupBuilder is Test {
     return this;
   }
 
+  function setInboxLag(uint256 _inboxLag) public returns (RollupBuilder) {
+    config.rollupConfigInput.inboxLag = _inboxLag;
+    return this;
+  }
+
   function setSlotDuration(uint256 _slotDuration) public returns (RollupBuilder) {
     config.rollupConfigInput.aztecSlotDuration = _slotDuration;
     return this;
@@ -320,7 +325,7 @@ contract RollupBuilder is Test {
       vm.prank(config.testERC20.owner());
       config.testERC20.mint(feeAssetPortal, config.values.mintFeeAmount);
 
-      config.testERC20.mint(address(config.rewardDistributor), 1e6 * config.rollup.getBlockReward());
+      config.testERC20.mint(address(config.rewardDistributor), 1e6 * config.rollup.getCheckpointReward());
 
       vm.prank(config.registry.owner());
       config.registry.addRollup(config.rollup);
