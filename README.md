@@ -36,7 +36,7 @@ We use `forge fmt` to format. But follow a few general guidelines beyond the sta
 
 You can run `./bootstrap.sh gas_report` to generate a detailed gas report for the current state and update the gas_report.md file.
 
-If you want something more manageble you should be using the `./boostrap.sh gas_benchmark` which will give you some "happy path" gas numbers for set with and without validators in a format that might be slightly simpler to figure out. The values outputted from this can also be seen over time at https://aztecprotocol.github.io/aztec-packages/dev/l1-gas-bench/.
+If you want something more manageble you should be using the `./boostrap.sh gas_benchmark` which will give you some "happy path" gas numbers for set with and without validators in a format that might be slightly simpler to figure out. The values outputted from this can also be seen over time at https://aztecprotocol.github.io/benchmark-page-data/dev/l1-gas-bench/.
 
 When running CI or tests with `./bootstrap.sh test`, the script will automatically check if gas usage has changed by running `./bootstrap.sh gas_report check`. If gas usage has changed, the test will fail and show a diff of the changes.
 
@@ -149,3 +149,10 @@ When this command is run in CI, it will fail if the markdown file generated in d
 We assume that you already have slither installed. You can install it with `pip3 install slither-analyzer==0.10.0 slitherin==0.5.0`. It is kept out of the bootstrap script as it is not a requirement for people who just want to run tests or are uninterested in the contracts.
 
 > We are not running the `naming-convention` detector because we have our own rules for naming which is enforced by the linter.
+
+# Consuming these contracts
+
+Here are sample repos on how to consume these contracts from
+
+- [foundry](https://github.com/just-mitch/hello_aztec_foundry)
+- [hardhat](https://github.com/just-mitch/hardhat-aztec-example)
