@@ -22,6 +22,8 @@ import {MockVerifier} from "@aztec/mock/MockVerifier.sol";
 import {MultiAdder, CheatDepositArgs} from "@aztec/mock/MultiAdder.sol";
 import {TestERC20} from "@aztec/mock/TestERC20.sol";
 
+import {SlashFactory} from "@aztec/periphery/SlashFactory.sol";
+
 import {HonkVerifier} from "../../generated/HonkVerifier.sol";
 
 import {IRollupConfiguration} from "./RollupConfiguration.sol";
@@ -41,6 +43,7 @@ struct RollupAddressInput {
 struct RollupAddressOutput {
   Rollup rollup;
   IVerifier verifier;
+  SlashFactory slashFactory;
 }
 
 /// @title DeployRollupLib
@@ -53,6 +56,7 @@ library DeployRollupLib {
   {
     output.verifier = _deployVerifier(config);
     output.rollup = _deployRollupContract(input, output.verifier, config);
+    output.slashFactory = new SlashFactory(output.rollup);
     _maybeMintInitialFeeAsset(input, output.rollup, config);
     _maybeRegisterRollup(input, output.rollup);
     _maybeAddInitialValidators(input, output.rollup, config);
@@ -65,6 +69,7 @@ library DeployRollupLib {
   {
     vm.serializeAddress(jsonKey, "rollupAddress", address(output.rollup));
     vm.serializeAddress(jsonKey, "verifierAddress", address(output.verifier));
+    vm.serializeAddress(jsonKey, "slashFactoryAddress", address(output.slashFactory));
     vm.serializeAddress(jsonKey, "inboxAddress", address(output.rollup.getInbox()));
     vm.serializeAddress(jsonKey, "outboxAddress", address(output.rollup.getOutbox()));
     vm.serializeAddress(jsonKey, "feeJuicePortalAddress", address(output.rollup.getFeeAssetPortal()));

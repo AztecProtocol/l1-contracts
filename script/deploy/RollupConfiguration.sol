@@ -8,6 +8,7 @@ import {BN254Lib, G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
 import {CheatDepositArgs} from "@aztec/mock/MultiAdder.sol";
 import {IRewardDistributor} from "@aztec/governance/interfaces/IRewardDistributor.sol";
 import {IBoosterCore} from "@aztec/core/reward-boost/RewardBooster.sol";
+import {SlasherFlavor} from "@aztec/core/interfaces/ISlasher.sol";
 import {EthValue, EthPerFeeAssetE12} from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {GenesisState, RollupConfigInput} from "@aztec/core/interfaces/IRollup.sol";
 import {Timestamp} from "@aztec/core/libraries/TimeLib.sol";
@@ -125,7 +126,7 @@ contract RollupConfiguration is IRollupConfiguration, Test {
       slashingExecutionDelayInRounds: vm.envUint("AZTEC_SLASHING_EXECUTION_DELAY_IN_ROUNDS"),
       slashAmounts: _getSlashAmounts(),
       slashingOffsetInRounds: _getSlashingOffset(),
-      slasherEnabled: vm.envOr("AZTEC_SLASHER_ENABLED", true),
+      slasherFlavor: _getSlasherFlavor(),
       slashingVetoer: vm.envAddress("AZTEC_SLASHING_VETOER"),
       slashingDisableDuration: vm.envUint("AZTEC_SLASHING_DISABLE_DURATION"),
       manaTarget: vm.envUint("AZTEC_MANA_TARGET"),
@@ -156,6 +157,10 @@ contract RollupConfiguration is IRollupConfiguration, Test {
     bytes32 hash = keccak256(abi.encode(_config, _genesisState));
     // Extract first 4 bytes as uint32 (big-endian)
     return uint32(bytes4(hash));
+  }
+
+  function _getSlasherFlavor() private view returns (SlasherFlavor) {
+    return _parseSlasherFlavor(vm.envString("AZTEC_SLASHER_FLAVOR"));
   }
 
   function _getSlashingOffset() private view returns (uint256) {
@@ -219,5 +224,11 @@ contract RollupConfiguration is IRollupConfiguration, Test {
       y0: validatorsJson.readUint(string.concat(basePath, ".publicKeyInG2.y0")),
       y1: validatorsJson.readUint(string.concat(basePath, ".publicKeyInG2.y1"))
     });
+  }
+
+  function _parseSlasherFlavor(string memory flavor) private pure returns (SlasherFlavor) {
+    if (keccak256(bytes(flavor)) == keccak256("empire")) return SlasherFlavor.EMPIRE;
+    if (keccak256(bytes(flavor)) == keccak256("tally")) return SlasherFlavor.TALLY;
+    return SlasherFlavor.NONE;
   }
 }
