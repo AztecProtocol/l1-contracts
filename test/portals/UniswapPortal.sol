@@ -9,6 +9,7 @@ import {DataStructures} from "@aztec/core/libraries/DataStructures.sol";
 import {DataStructures as PortalDataStructures} from "./DataStructures.sol";
 import {Hash} from "@aztec/core/libraries/crypto/Hash.sol";
 
+// docs:start:setup
 import {TokenPortal} from "./TokenPortal.sol";
 import {ISwapRouter} from "../external/ISwapRouter.sol";
 
@@ -45,6 +46,9 @@ contract UniswapPortal {
     bytes32 contentHash;
   }
 
+  // docs:end:setup
+
+  // docs:start:solidity_uniswap_swap_public
   /**
    * @notice Exit with funds from L2, perform swap on L1 and deposit output asset to L2 again publicly
    * @dev `msg.value` indicates fee to submit message to inbox. Currently, anyone can call this method on your behalf.
@@ -150,6 +154,9 @@ contract UniswapPortal {
     return TokenPortal(_outputTokenPortal).depositToAztecPublic(_aztecRecipient, amountOut, _secretHashForL1ToL2Message);
   }
 
+  // docs:end:solidity_uniswap_swap_public
+
+  // docs:start:solidity_uniswap_swap_private
   /**
    * @notice Exit with funds from L2, perform swap on L1 and deposit output asset to L2 again privately
    * @dev `msg.value` indicates fee to submit message to inbox. Currently, anyone can call this method on your behalf.
@@ -251,3 +258,4 @@ contract UniswapPortal {
     return TokenPortal(_outputTokenPortal).depositToAztecPrivate(amountOut, _secretHashForL1ToL2Message);
   }
 }
+// docs:end:solidity_uniswap_swap_private
