@@ -3,11 +3,11 @@
 pragma solidity >=0.8.27;
 
 import {BN254Lib, G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
-import {TestBase} from "@test/base/Base.sol";
+import {Test} from "forge-std/Test.sol";
 
 // solhint-disable comprehensive-interface
 
-contract BN254Fixtures is TestBase {
+contract BN254Fixtures is Test {
   struct FixtureData {
     uint256 fpOrder;
     uint256 frOrder;
