@@ -2,12 +2,12 @@
 // Copyright 2024 Aztec Labs.
 pragma solidity >=0.8.27;
 
-import {DecoderBase} from "./base/DecoderBase.sol";
+import {DecoderBase} from "../base/DecoderBase.sol";
 
 import {Registry} from "@aztec/governance/Registry.sol";
 import {FeeJuicePortal} from "@aztec/core/messagebridge/FeeJuicePortal.sol";
 import {TestERC20} from "@aztec/mock/TestERC20.sol";
-import {TestConstants} from "./harnesses/TestConstants.sol";
+import {TestConstants} from "../harnesses/TestConstants.sol";
 import {RewardDistributor} from "@aztec/governance/RewardDistributor.sol";
 import {ProposeArgs, ProposeLib} from "@aztec/core/libraries/rollup/ProposeLib.sol";
 
@@ -16,9 +16,9 @@ import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol
 import {Errors} from "@aztec/core/libraries/Errors.sol";
 import {ProposeArgs, ProposePayload, OracleInput, ProposeLib} from "@aztec/core/libraries/rollup/ProposeLib.sol";
 
-import {RollupBase, IInstance} from "./base/RollupBase.sol";
-import {RollupBuilder} from "./builder/RollupBuilder.sol";
-import {TimeCheater} from "./staking/TimeCheater.sol";
+import {RollupBase, IInstance} from "../base/RollupBase.sol";
+import {RollupBuilder} from "../builder/RollupBuilder.sol";
+import {TimeCheater} from "../staking/TimeCheater.sol";
 import {Bps, BpsLib} from "@aztec/core/libraries/rollup/RewardLib.sol";
 import {
   AttestationLib,
@@ -33,8 +33,6 @@ import {AttestationLibHelper} from "@test/helper_libraries/AttestationLibHelper.
 import {Ownable} from "@oz/access/Ownable.sol";
 import {IInbox} from "@aztec/core/interfaces/messagebridge/IInbox.sol";
 import {Signature} from "@aztec/shared/libraries/SignatureLib.sol";
-import {CheckpointLog} from "@aztec/core/libraries/compressed-data/CheckpointLog.sol";
-import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 // solhint-disable comprehensive-interface
 
 struct Checkpoint {
@@ -45,12 +43,11 @@ struct Checkpoint {
   Signature attestationsAndSignersSignature;
 }
 
-contract Tmnt419Test is RollupBase {
+contract Tmnt223Test is RollupBase {
   using ProposeLib for ProposeArgs;
   using TimeLib for Timestamp;
   using TimeLib for Slot;
   using TimeLib for Epoch;
-  using stdStorage for StdStorage;
 
   Registry internal registry;
   TestERC20 internal testERC20;
@@ -103,55 +100,40 @@ contract Tmnt419Test is RollupBase {
     _;
   }
 
-  function test_getStorageTempCheckpointLog() public setUpFor("empty_checkpoint_1") {
+  function test_deadlock() public setUpFor("empty_checkpoint_1") {
     skipBlobCheck(address(rollup));
     timeCheater.cheat__progressSlot();
 
-    for (uint256 i = 0; i < 100; i++) {
-      Checkpoint memory checkpoint = getCheckpoint();
+    for (uint256 i = 0; i < 10; i++) {
+      Checkpoint memory l2Checkpoint = getCheckpoint();
       rollup.propose(
-        checkpoint.proposeArgs,
-        AttestationLibHelper.packAttestations(checkpoint.attestations),
-        checkpoint.signers,
-        checkpoint.attestationsAndSignersSignature,
-        checkpoint.blobInputs
+        l2Checkpoint.proposeArgs,
+        AttestationLibHelper.packAttestations(l2Checkpoint.attestations),
+        l2Checkpoint.signers,
+        l2Checkpoint.attestationsAndSignersSignature,
+        l2Checkpoint.blobInputs
       );
       timeCheater.cheat__progressSlot();
-
-      stdstore.enable_packed_slots().target(address(rollup)).sig("getProvenCheckpointNumber()")
-        .checked_write(rollup.getPendingCheckpointNumber());
     }
 
-    assertEq(rollup.getProvenCheckpointNumber(), 100);
+    // Now say that we alter the mana limit! Ensure that we can still produce checkpoints!
+    MANA_TARGET = 1e6;
+    vm.expectEmit(true, true, true, true, address(rollup.getInbox()));
+    emit IInbox.InboxSynchronized(10 + TestConstants.AZTEC_INBOX_LAG + 1);
+    vm.prank(Ownable(address(rollup)).owner());
+    rollup.updateManaTarget(MANA_TARGET);
 
-    // Read something so old that it should be stale
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        Errors.Rollup__UnavailableTempCheckpointLog.selector, 1, 100, 1 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
-      )
+    Checkpoint memory nonEmptyCheckpoint = getCheckpoint();
+    rollup.propose(
+      nonEmptyCheckpoint.proposeArgs,
+      AttestationLibHelper.packAttestations(nonEmptyCheckpoint.attestations),
+      nonEmptyCheckpoint.signers,
+      nonEmptyCheckpoint.attestationsAndSignersSignature,
+      nonEmptyCheckpoint.blobInputs
     );
-    rollup.getCheckpoint(1);
 
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        Errors.Rollup__UnavailableTempCheckpointLog.selector,
-        100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2),
-        100,
-        100
-      )
-    );
-    rollup.getCheckpoint(100 - (1 + TestConstants.AZTEC_EPOCH_DURATION * 2));
-
-    // Read something current
-    rollup.getCheckpoint(rollup.getPendingCheckpointNumber());
-
-    // Try to read into the future see a failure
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        Errors.Rollup__UnavailableTempCheckpointLog.selector, 101, 100, 101 + 1 + TestConstants.AZTEC_EPOCH_DURATION * 2
-      )
-    );
-    rollup.getCheckpoint(101);
+    assertEq(rollup.getPendingCheckpointNumber(), 11);
+    assertEq(rollup.getInbox().getInProgress(), 11 + TestConstants.AZTEC_INBOX_LAG + 1);
   }
 
   function getCheckpoint() internal view returns (Checkpoint memory) {

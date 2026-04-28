@@ -46,11 +46,7 @@ contract GetAddressFromIndexAtTimestampTest is AddressSnapshotsBase {
     }
   }
 
-  function test_WhenQueryingPast(address[] memory _addrs, uint224 _index)
-    public
-    whenValidatorsExist(_addrs)
-    skipWhenCoverage
-  {
+  function test_WhenQueryingPast(address[] memory _addrs, uint224 _index) public whenValidatorsExist(_addrs) {
     _addrs = boundUnique(_addrs);
     _index = uint224(bound(_index, 0, _addrs.length - 1));
 
@@ -68,7 +64,7 @@ contract GetAddressFromIndexAtTimestampTest is AddressSnapshotsBase {
     validatorSet.getAddressFromIndexAtTimestamp(_index, (ts - 1).toUint32());
   }
 
-  function test_WhenValidatorWasRemoved(address[] memory _addrs) public whenValidatorsExist(_addrs) skipWhenCoverage {
+  function test_WhenValidatorWasRemoved(address[] memory _addrs) public whenValidatorsExist(_addrs) {
     _addrs = boundUnique(_addrs);
 
     uint224 lastIndex = uint224(_addrs.length - 1);
