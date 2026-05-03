@@ -13,6 +13,7 @@ import {ValidatorSelectionLib} from "@aztec/core/libraries/rollup/ValidatorSelec
 import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol";
 import {CompressedSlot, CompressedTimeMath} from "@aztec/shared/libraries/CompressedTimeMath.sol";
 import {ECDSA} from "@oz/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@oz/utils/cryptography/MessageHashUtils.sol";
 
 /**
  * @title InvalidateLib
@@ -56,6 +57,7 @@ library InvalidateLib {
   using TimeLib for Epoch;
   using ChainTipsLib for CompressedChainTips;
   using AttestationLib for CommitteeAttestations;
+  using MessageHashUtils for bytes32;
   using CompressedTimeMath for CompressedSlot;
 
   /**
@@ -233,7 +235,7 @@ library InvalidateLib {
     );
 
     // Get the digest of the payload that was signed by the committee
-    bytes32 digest = checkpointLog.payloadDigest;
+    bytes32 digest = checkpointLog.payloadDigest.toEthSignedMessageHash();
 
     return (digest, committeeSize);
   }
