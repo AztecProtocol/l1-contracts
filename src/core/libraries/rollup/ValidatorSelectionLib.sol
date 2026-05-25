@@ -13,6 +13,7 @@ import {STFLib} from "@aztec/core/libraries/rollup/STFLib.sol";
 import {Timestamp, Slot, Epoch, TimeLib} from "@aztec/core/libraries/TimeLib.sol";
 import {SignatureLib, Signature} from "@aztec/shared/libraries/SignatureLib.sol";
 import {ECDSA} from "@oz/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@oz/utils/cryptography/MessageHashUtils.sol";
 import {SafeCast} from "@oz/utils/math/SafeCast.sol";
 import {SlotDerivation} from "@oz/utils/SlotDerivation.sol";
 import {Checkpoints} from "@oz/utils/structs/Checkpoints.sol";
@@ -93,6 +94,7 @@ import {TransientSlot} from "@oz/utils/TransientSlot.sol";
  */
 library ValidatorSelectionLib {
   using EnumerableSet for EnumerableSet.AddressSet;
+  using MessageHashUtils for bytes32;
   using SignatureLib for Signature;
   using TimeLib for Timestamp;
   using TimeLib for Epoch;
@@ -271,12 +273,14 @@ library ValidatorSelectionLib {
     }
 
     // Check if the signature is correct
+    bytes32 digest = _digest.toEthSignedMessageHash();
     Signature memory signature = _attestations.getSignature(proposerIndex);
-    SignatureLib.verify(signature, proposer, _digest);
+    SignatureLib.verify(signature, proposer, digest);
 
     // Check that the proposer have signed the `_attestations|_signers` data such that invalid `_attestations|_signers`
     // data can be attributed to the `proposer` specifically.
-    bytes32 attestationsAndSignersDigest = _attestations.getAttestationsAndSignersDigest(_signers);
+    bytes32 attestationsAndSignersDigest =
+      _attestations.getAttestationsAndSignersDigest(_signers).toEthSignedMessageHash();
     SignatureLib.verify(_attestationsAndSignersSignature, proposer, attestationsAndSignersDigest);
 
     if (_updateCache) {
@@ -329,6 +333,8 @@ library ValidatorSelectionLib {
       reconstructedCommittee: new address[](targetCommitteeSize)
     });
 
+    bytes32 digest = _digest.toEthSignedMessageHash();
+
     bytes memory signaturesOrAddresses = _attestations.signaturesOrAddresses;
     uint256 dataPtr;
     assembly {
@@ -354,7 +360,7 @@ library ValidatorSelectionLib {
           }
 
           ++stack.signaturesRecovered;
-          stack.reconstructedCommittee[i] = ECDSA.recover(_digest, v, r, s);
+          stack.reconstructedCommittee[i] = ECDSA.recover(digest, v, r, s);
         } else {
           address addr;
           assembly {
