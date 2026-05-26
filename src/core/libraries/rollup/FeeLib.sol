@@ -192,9 +192,11 @@ library FeeLib {
       Errors.FeeLib__InvalidFeeAssetPriceModifier()
     );
     CompressedFeeHeader parentFeeHeader = STFLib.getFeeHeader(_checkpointNumber - 1);
+    // Use Math.max to handle checkpoints from ignition where ethPerFeeAsset may be 0
+    uint256 parentEthPerFeeAsset = Math.max(parentFeeHeader.getEthPerFeeAsset(), MIN_ETH_PER_FEE_ASSET);
     return FeeHeader({
       excessMana: FeeLib.computeExcessMana(parentFeeHeader),
-      ethPerFeeAsset: FeeLib.computeNewEthPerFeeAsset(parentFeeHeader.getEthPerFeeAsset(), _feeAssetPriceModifierBps),
+      ethPerFeeAsset: FeeLib.computeNewEthPerFeeAsset(parentEthPerFeeAsset, _feeAssetPriceModifierBps),
       manaUsed: _manaUsed,
       congestionCost: _congestionCost,
       proverCost: _proverCost
@@ -216,6 +218,10 @@ library FeeLib {
     FeeStore storage feeStore = getStorage();
 
     uint256 manaTarget = feeStore.config.getManaTarget();
+
+    if (manaTarget == 0) {
+      return ManaMinFeeComponents({sequencerCost: 0, proverCost: 0, congestionCost: 0, congestionMultiplier: 0});
+    }
 
     EthValue sequencerCostPerMana;
     EthValue proverCostPerMana;
@@ -271,6 +277,11 @@ library FeeLib {
     });
   }
 
+  function isTxsEnabled() internal view returns (bool) {
+    // If the target is 0, the limit is 0. And no transactions can enter
+    return getManaTarget() > 0;
+  }
+
   function getManaTarget() internal view returns (uint256) {
     return getStorage().config.getManaTarget();
   }
@@ -285,7 +296,9 @@ library FeeLib {
   }
 
   function getEthPerFeeAssetAtCheckpoint(uint256 _checkpointNumber) internal view returns (EthPerFeeAssetE12) {
-    return EthPerFeeAssetE12.wrap(STFLib.getFeeHeader(_checkpointNumber).getEthPerFeeAsset());
+    uint256 value = STFLib.getFeeHeader(_checkpointNumber).getEthPerFeeAsset();
+    // Ensure we never return 0 (e.g., from checkpoints proposed during ignition with manaTarget = 0)
+    return EthPerFeeAssetE12.wrap(Math.max(value, MIN_ETH_PER_FEE_ASSET));
   }
 
   function computeExcessMana(CompressedFeeHeader _feeHeader) internal view returns (uint256) {
@@ -303,7 +316,6 @@ library FeeLib {
   }
 
   function computeManaLimit(uint256 _manaTarget) internal pure returns (uint256) {
-    require(_manaTarget > 0, Errors.FeeLib__InvalidManaTarget(1, _manaTarget));
     uint256 manaLimit = _manaTarget * 2;
 
     // Ensure that the maximum spent mana can fit in the fee header
