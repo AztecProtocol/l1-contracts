@@ -153,7 +153,7 @@ contract invalidateTest is EscapeHatchIntegrationBase {
     uint256 committeeSize = data.committee.length;
     data.attestations = new CommitteeAttestation[](committeeSize);
     address[] memory signers = new address[](committeeSize);
-    bytes32 digest = ProposeLib.digest(proposePayload, address(rollup));
+    bytes32 digest = ProposeLib.digest(proposePayload);
 
     for (uint256 i = 0; i < committeeSize; i++) {
       data.attestations[i] = _createAttestation(data.committee[i], digest);
@@ -177,9 +177,7 @@ contract invalidateTest is EscapeHatchIntegrationBase {
     Signature memory attestationsAndSignersSignature =
     _createAttestation(
       proposer,
-      AttestationLib.getAttestationsAndSignersDigest(
-        AttestationLibHelper.packAttestations(data.attestations), signers, address(rollup)
-      )
+      AttestationLib.getAttestationsAndSignersDigest(AttestationLibHelper.packAttestations(data.attestations), signers)
     ).signature;
 
     // Propose the checkpoint
