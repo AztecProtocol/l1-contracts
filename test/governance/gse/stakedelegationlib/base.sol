@@ -2,10 +2,10 @@
 // Copyright 2024 Aztec Labs.
 pragma solidity >=0.8.27;
 
-import {TestBase} from "@test/base/Base.sol";
+import {Test} from "forge-std/Test.sol";
 import {StakeDelegationLibWrapper} from "./StakeDelegationLibWrapper.sol";
 
-contract WithDelegationLib is TestBase {
+contract WithDelegationLib is Test {
   StakeDelegationLibWrapper internal delegationLib = new StakeDelegationLibWrapper();
 
   /**
@@ -16,7 +16,7 @@ contract WithDelegationLib is TestBase {
    *            instead of 2. The two being 1 for the data + 1 for the array size increase
    */
   function assertNumWrites(uint256 _direct, uint256 _snapshots) internal {
-    uint256 writesPerSnapshot = isCoverage() ? 3 : 2;
+    uint256 writesPerSnapshot = vm.envOr("FORGE_COVERAGE", false) ? 3 : 2;
     (, bytes32[] memory writeSlots) = vm.accesses(address(delegationLib));
     assertEq(writeSlots.length, _direct + _snapshots * writesPerSnapshot, "Number of writes");
   }
