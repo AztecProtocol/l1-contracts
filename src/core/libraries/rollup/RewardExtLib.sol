@@ -10,7 +10,7 @@ import {
   EthValue
 } from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {ProposeLib} from "@aztec/core/libraries/rollup/ProposeLib.sol";
-import {RewardLib, RewardConfig} from "@aztec/core/libraries/rollup/RewardLib.sol";
+import {RewardLib, RewardConfig, MutableRewardConfig} from "@aztec/core/libraries/rollup/RewardLib.sol";
 import {STFLib} from "@aztec/core/libraries/rollup/STFLib.sol";
 import {Epoch, Timestamp} from "@aztec/core/libraries/TimeLib.sol";
 import {
@@ -22,16 +22,12 @@ import {
 import {IRewardDistributor} from "@aztec/governance/interfaces/IRewardDistributor.sol";
 
 library RewardExtLib {
-  function initialize(Timestamp _earliestRewardsClaimableTimestamp) external {
-    RewardLib.initialize(_earliestRewardsClaimableTimestamp);
+  function initializeConfig(RewardConfig memory _config) external {
+    RewardLib.initializeConfig(_config);
   }
 
-  function setConfig(RewardConfig memory _config) external {
-    RewardLib.setConfig(_config);
-  }
-
-  function setIsRewardsClaimable(bool _isRewardsClaimable) external {
-    RewardLib.setIsRewardsClaimable(_isRewardsClaimable);
+  function updateConfig(MutableRewardConfig memory _config) external {
+    RewardLib.updateConfig(_config);
   }
 
   function claimSequencerRewards(address _sequencer) external returns (uint256) {
@@ -75,14 +71,6 @@ library RewardExtLib {
 
   function getCheckpointReward() external view returns (uint256) {
     return RewardLib.getCheckpointReward();
-  }
-
-  function isRewardsClaimable() external view returns (bool) {
-    return RewardLib.isRewardsClaimable();
-  }
-
-  function getEarliestRewardsClaimableTimestamp() external view returns (Timestamp) {
-    return RewardLib.getEarliestRewardsClaimableTimestamp();
   }
 
   function getRewardConfig() external view returns (RewardConfig memory) {
