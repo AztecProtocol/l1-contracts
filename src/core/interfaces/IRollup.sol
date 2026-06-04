@@ -3,6 +3,7 @@
 pragma solidity >=0.8.27;
 
 import {IFeeJuicePortal} from "@aztec/core/interfaces/IFeeJuicePortal.sol";
+import {SlasherFlavor} from "@aztec/core/interfaces/ISlasher.sol";
 import {IVerifier} from "@aztec/core/interfaces/IVerifier.sol";
 import {IInbox} from "@aztec/core/interfaces/messagebridge/IInbox.sol";
 import {IOutbox} from "@aztec/core/interfaces/messagebridge/IOutbox.sol";
@@ -15,7 +16,7 @@ import {CommitteeAttestations} from "@aztec/core/libraries/rollup/AttestationLib
 import {ManaMinFeeComponents} from "@aztec/core/libraries/rollup/FeeLib.sol";
 import {ProposedHeader} from "@aztec/core/libraries/rollup/ProposedHeaderLib.sol";
 import {ProposeArgs} from "@aztec/core/libraries/rollup/ProposeLib.sol";
-import {RewardConfig, MutableRewardConfig} from "@aztec/core/libraries/rollup/RewardLib.sol";
+import {RewardConfig} from "@aztec/core/libraries/rollup/RewardLib.sol";
 import {RewardBoostConfig} from "@aztec/core/reward-boost/RewardBooster.sol";
 import {IHaveVersion} from "@aztec/governance/interfaces/IRegistry.sol";
 import {IRewardDistributor} from "@aztec/governance/interfaces/IRewardDistributor.sol";
@@ -67,7 +68,7 @@ struct RollupConfigInput {
   uint256 slashingExecutionDelayInRounds;
   uint256[3] slashAmounts;
   uint256 slashingOffsetInRounds;
-  bool slasherEnabled;
+  SlasherFlavor slasherFlavor;
   address slashingVetoer;
   uint256 slashingDisableDuration;
   uint256 manaTarget;
@@ -79,6 +80,7 @@ struct RollupConfigInput {
   RewardBoostConfig rewardBoostConfig;
   StakingQueueConfig stakingQueueConfig;
   uint256 localEjectionThreshold;
+  Timestamp earliestRewardsClaimableTimestamp;
   uint256 inboxLag;
 }
 
@@ -111,10 +113,12 @@ interface IRollupCore {
   );
   event L2ProofVerified(uint256 indexed checkpointNumber, address indexed proverId);
   event CheckpointInvalidated(uint256 indexed checkpointNumber);
-  event RewardConfigUpdated(MutableRewardConfig rewardConfig);
+  event RewardConfigUpdated(RewardConfig rewardConfig);
   event ManaTargetUpdated(uint256 indexed manaTarget);
   event PrunedPending(uint256 provenCheckpointNumber, uint256 pendingCheckpointNumber);
+  event RewardsClaimableUpdated(bool isRewardsClaimable);
 
+  function setRewardsClaimable(bool _isRewardsClaimable) external;
   function claimSequencerRewards(address _recipient) external returns (uint256);
   function claimProverRewards(address _recipient, Epoch[] memory _epochs) external returns (uint256);
 
@@ -146,7 +150,7 @@ interface IRollupCore {
     address[] memory _committee
   ) external;
 
-  function setRewardConfig(MutableRewardConfig memory _config) external;
+  function setRewardConfig(RewardConfig memory _config) external;
   function updateManaTarget(uint256 _manaTarget) external;
 
   // solhint-disable-next-line func-name-mixedcase
@@ -232,10 +236,8 @@ interface IRollup is IRollupCore, IHaveVersion {
   function getInbox() external view returns (IInbox);
   function getOutbox() external view returns (IOutbox);
 
-  function getVkTreeRoot() external view returns (bytes32);
-  function getProtocolContractsHash() external view returns (bytes32);
-  function getEpochProofVerifier() external view returns (IVerifier);
-
   function getRewardConfig() external view returns (RewardConfig memory);
   function getCheckpointReward() external view returns (uint256);
+  function getEarliestRewardsClaimableTimestamp() external view returns (Timestamp);
+  function isRewardsClaimable() external view returns (bool);
 }
