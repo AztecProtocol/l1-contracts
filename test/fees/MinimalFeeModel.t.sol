@@ -47,8 +47,9 @@ contract MinimalFeeModelTest is FeeModelTestPoints {
     vm.blobBaseFee(l1Metadata[0].blob_fee);
 
     model = new MinimalFeeModel(
-      SLOT_DURATION, EPOCH_DURATION, PROOF_SUBMISSION_EPOCHS, TestConstants.AZTEC_INITIAL_ETH_PER_FEE_ASSET, provingCost
+      SLOT_DURATION, EPOCH_DURATION, PROOF_SUBMISSION_EPOCHS, TestConstants.AZTEC_INITIAL_ETH_PER_FEE_ASSET
     );
+    model.setProvingCost(provingCost);
   }
 
   function test_computeEthPerFeeAsset() public {

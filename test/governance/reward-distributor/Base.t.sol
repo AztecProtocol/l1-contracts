@@ -22,7 +22,7 @@ contract RewardDistributorBase is Test {
   Registry internal registry;
   RewardDistributor internal rewardDistributor;
 
-  function setUp() public virtual {
+  function setUp() public {
     token = IMintableERC20(address(new TestERC20("test", "TEST", address(this))));
     registry = new Registry(address(this), token);
 
