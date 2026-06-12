@@ -36,6 +36,7 @@ import {CheatDepositArgs} from "@aztec/mock/MultiAdder.sol";
 import {BN254Lib, G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
 import {StakingQueueConfig} from "@aztec/core/libraries/compressed-data/StakingQueueConfig.sol";
 import {ProposedHeaderLib} from "@aztec/core/libraries/rollup/ProposedHeaderLib.sol";
+import {MessageHashUtils} from "@oz/utils/cryptography/MessageHashUtils.sol";
 import {
   IRollup,
   IRollupCore,
@@ -55,6 +56,7 @@ struct Checkpoint {
 }
 
 contract Tmnt207Test is RollupBase {
+  using MessageHashUtils for bytes32;
   using ProposeLib for ProposeArgs;
   using TimeLib for Timestamp;
   using TimeLib for Slot;
@@ -72,7 +74,7 @@ contract Tmnt207Test is RollupBase {
   uint256 internal SLOT_DURATION;
   uint256 internal EPOCH_DURATION;
   uint256 internal PROOF_SUBMISSION_EPOCHS;
-  uint256 internal MANA_TARGET = 1e6;
+  uint256 internal MANA_TARGET = 0;
   uint256 internal COMMITTEE_SIZE = 4;
 
   address internal sequencer = address(bytes20("sequencer"));
@@ -256,7 +258,11 @@ contract Tmnt207Test is RollupBase {
     header.coinbase = address(bytes20("coinbase"));
     header.feeRecipient = bytes32(0);
     header.gasFees.feePerL2Gas = SafeCast.toUint128(rollup.getManaMinFeeAt(Timestamp.wrap(block.timestamp), true));
-    header.totalManaUsed = MANA_TARGET;
+    if (MANA_TARGET > 0) {
+      header.totalManaUsed = MANA_TARGET;
+    } else {
+      header.totalManaUsed = 0;
+    }
 
     ProposeArgs memory proposeArgs =
       ProposeArgs({header: header, archive: archiveRoot, oracleInput: OracleInput({feeAssetPriceModifier: 0})});
@@ -275,7 +281,7 @@ contract Tmnt207Test is RollupBase {
       ProposePayload memory proposePayload =
         ProposePayload({archive: proposeArgs.archive, oracleInput: proposeArgs.oracleInput, headerHash: headerHash});
 
-      bytes32 digest = ProposeLib.digest(proposePayload, address(rollup));
+      bytes32 digest = ProposeLib.digest(proposePayload);
 
       // loop through to make sure we create an attestation for the proposer
       for (uint256 i = 0; i < validators.length; i++) {
@@ -307,9 +313,7 @@ contract Tmnt207Test is RollupBase {
     if (proposer != address(0)) {
       attestationsAndSignersSignature = createAttestation(
         proposer,
-        AttestationLib.getAttestationsAndSignersDigest(
-          AttestationLibHelper.packAttestations(attestations), signers, address(rollup)
-        )
+        AttestationLib.getAttestationsAndSignersDigest(AttestationLibHelper.packAttestations(attestations), signers)
       ).signature;
     }
 
@@ -325,7 +329,8 @@ contract Tmnt207Test is RollupBase {
   function createAttestation(address _signer, bytes32 _digest) internal view returns (CommitteeAttestation memory) {
     uint256 privateKey = attesterPrivateKeys[_signer];
 
-    (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, _digest);
+    bytes32 digest = _digest.toEthSignedMessageHash();
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
     Signature memory signature = Signature({v: v, r: r, s: s});
     // Address can be zero for signed attestations

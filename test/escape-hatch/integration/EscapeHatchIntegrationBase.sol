@@ -20,6 +20,7 @@ import {
 import {CheckpointLog, SubmitEpochRootProofArgs, PublicInputArgs} from "@aztec/core/interfaces/IRollup.sol";
 import {IValidatorSelectionCore} from "@aztec/core/interfaces/IValidatorSelection.sol";
 import {Strings} from "@oz/utils/Strings.sol";
+import {MessageHashUtils} from "@oz/utils/cryptography/MessageHashUtils.sol";
 import {SafeCast} from "@oz/utils/math/SafeCast.sol";
 import {AttestationLibHelper} from "@test/helper_libraries/AttestationLibHelper.sol";
 
@@ -29,6 +30,7 @@ import {AttestationLibHelper} from "@test/helper_libraries/AttestationLibHelper.
  * @dev Provides common setup, configuration, and helper functions for integration tests
  */
 abstract contract EscapeHatchIntegrationBase is ValidatorSelectionTestBase {
+  using MessageHashUtils for bytes32;
   // ============ Escape Hatch Configuration ============
   uint96 internal constant DEFAULT_BOND_SIZE = 100e18;
   uint96 internal constant DEFAULT_WITHDRAWAL_TAX = 1e18;
@@ -83,9 +85,9 @@ abstract contract EscapeHatchIntegrationBase is ValidatorSelectionTestBase {
 
     address rollupOwner = Ownable(address(rollup)).owner();
     vm.expectEmit(true, true, true, true, address(rollup));
-    emit IValidatorSelectionCore.EscapeHatchSet(address(escapeHatch));
+    emit IValidatorSelectionCore.EscapeHatchUpdated(address(escapeHatch));
     vm.prank(rollupOwner);
-    rollup.setEscapeHatch(address(escapeHatch));
+    rollup.updateEscapeHatch(address(escapeHatch));
   }
 
   /**
@@ -213,7 +215,7 @@ abstract contract EscapeHatchIntegrationBase is ValidatorSelectionTestBase {
     uint256 committeeSize = committee.length;
     attestations = new CommitteeAttestation[](committeeSize);
     address[] memory signers = new address[](committeeSize);
-    bytes32 digest = ProposeLib.digest(proposePayload, address(rollup));
+    bytes32 digest = ProposeLib.digest(proposePayload);
 
     for (uint256 i = 0; i < committeeSize; i++) {
       attestations[i] = _createAttestation(committee[i], digest);
@@ -224,9 +226,7 @@ abstract contract EscapeHatchIntegrationBase is ValidatorSelectionTestBase {
     Signature memory attestationsAndSignersSignature =
     _createAttestation(
       proposer,
-      AttestationLib.getAttestationsAndSignersDigest(
-        AttestationLibHelper.packAttestations(attestations), signers, address(rollup)
-      )
+      AttestationLib.getAttestationsAndSignersDigest(AttestationLibHelper.packAttestations(attestations), signers)
     ).signature;
 
     // Propose the checkpoint
@@ -248,7 +248,8 @@ abstract contract EscapeHatchIntegrationBase is ValidatorSelectionTestBase {
   function _createAttestation(address _signer, bytes32 _digest) internal view returns (CommitteeAttestation memory) {
     uint256 privateKey = attesterPrivateKeys[_signer];
 
-    (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, _digest);
+    bytes32 digest = _digest.toEthSignedMessageHash();
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
     Signature memory signature = Signature({v: v, r: r, s: s});
     return CommitteeAttestation({addr: _signer, signature: signature});
