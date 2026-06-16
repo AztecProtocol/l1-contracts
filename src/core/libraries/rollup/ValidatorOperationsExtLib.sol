@@ -32,16 +32,12 @@ import {G1Point, G2Point} from "@aztec/shared/libraries/BN254Lib.sol";
 library ValidatorOperationsExtLib {
   using TimeLib for Timestamp;
 
-  function queueSetSlasher(address _slasher) external {
-    StakingLib.queueSetSlasher(_slasher);
+  function setSlasher(address _slasher) external {
+    StakingLib.setSlasher(_slasher);
   }
 
-  function cancelSetSlasher() external {
-    StakingLib.cancelSetSlasher();
-  }
-
-  function finalizeSetSlasher() external {
-    StakingLib.finalizeSetSlasher();
+  function setLocalEjectionThreshold(uint256 _localEjectionThreshold) external {
+    StakingLib.setLocalEjectionThreshold(_localEjectionThreshold);
   }
 
   function vote(uint256 _proposalId) external {
@@ -95,8 +91,8 @@ library ValidatorOperationsExtLib {
     StakingLib.updateStakingQueueConfig(_config);
   }
 
-  function setEscapeHatch(address _escapeHatch) external {
-    ValidatorSelectionLib.setEscapeHatch(_escapeHatch);
+  function updateEscapeHatch(address _escapeHatch) external {
+    ValidatorSelectionLib.updateEscapeHatch(_escapeHatch);
   }
 
   function invalidateBadAttestation(
