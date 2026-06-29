@@ -20,9 +20,12 @@ function download_solc {
   mkdir -p "$HOME/.svm"
   # We build a minimal file to trigger svm download of solc. svm fetches the
   # binary from binaries.soliditylang.org, which intermittently fails to resolve
-  # under heavy parallel CI load; retry to ride out transient DNS drops. (The
-  # merge queue disables the cache above, so this download path runs every time.)
-  retry "forge build --use \"$solc_version\" src/core/libraries/ConstantsGen.sol 2>/dev/null"
+  # under heavy parallel CI load; retry every 10s for ~5 min to ride out transient
+  # DNS drops, but only on connection/DNS failures so a genuine build error fails
+  # fast. (The merge queue disables the cache above, so this download path runs
+  # every time. stderr is kept so retry can see the DNS error and match on it.)
+  RETRY_ATTEMPTS=30 RETRY_SLEEP=10 retry -p 'dns error|Temporary failure in name resolution|error sending request|failed to lookup address|Connection refused|connection reset' \
+    "forge build --use \"$solc_version\" src/core/libraries/ConstantsGen.sol"
 
   # Copy from svm cache to local path
   local svm_path="$HOME/.svm/$solc_version/solc-$solc_version"
@@ -307,47 +310,52 @@ function release_git_push {
   # Copy from noir-projects. Bootstrap must have ran in noir-projects.
   cp ../noir-projects/noir-protocol-circuits/target/keys/rollup_root_verifier.sol release-out/src/HonkVerifier.sol
 
-  cd release-out
+  # Push the release from the clean export of HEAD, in a subshell so the caller's working directory
+  # is preserved. Later release steps (e.g. release_l1_artifacts_npm) rely on the gitignored build
+  # outputs that live in the working tree, outside this git-archive copy.
+  (
+    cd release-out
 
-  # Update the package version in package.json.
-  # TODO remove package.json.
-  release_prep_package_json $version
+    # Update the package version in package.json.
+    # TODO remove package.json.
+    release_prep_package_json $version
 
-  # CI needs to authenticate from GITHUB_TOKEN.
-  gh auth setup-git &>/dev/null || true
+    # CI needs to authenticate from GITHUB_TOKEN.
+    gh auth setup-git &>/dev/null || true
 
-  git init &>/dev/null
-  git remote add origin "$mirrored_repo_url" &>/dev/null
-  git fetch origin --quiet
+    git init &>/dev/null
+    git remote add origin "$mirrored_repo_url" &>/dev/null
+    git fetch origin --quiet
 
-  # Checkout the existing branch or create it if it doesn't exist.
-  if git ls-remote --heads origin "$branch_name" | grep -q "$branch_name"; then
-    # Update branch reference without checkout.
-    git branch -f "$branch_name" origin/"$branch_name"
-    # Point HEAD to the branch.
-    git symbolic-ref HEAD refs/heads/"$branch_name"
-    # Move to latest commit, keep working tree.
-    git reset --soft origin/"$branch_name"
-  else
-    git checkout -b "$branch_name"
-  fi
+    # Checkout the existing branch or create it if it doesn't exist.
+    if git ls-remote --heads origin "$branch_name" | grep -q "$branch_name"; then
+      # Update branch reference without checkout.
+      git branch -f "$branch_name" origin/"$branch_name"
+      # Point HEAD to the branch.
+      git symbolic-ref HEAD refs/heads/"$branch_name"
+      # Move to latest commit, keep working tree.
+      git reset --soft origin/"$branch_name"
+    else
+      git checkout -b "$branch_name"
+    fi
 
-  if git rev-parse "$tag_name" >/dev/null 2>&1; then
-    echo "Tag $tag_name already exists. Skipping release."
-  else
-    git add .
-    git commit -m "Release $tag_name." >/dev/null
-    git tag -a "$tag_name" -m "Release $tag_name."
+    if git rev-parse "$tag_name" >/dev/null 2>&1; then
+      echo "Tag $tag_name already exists. Skipping release."
+    else
+      git add .
+      git commit -m "Release $tag_name." >/dev/null
+      git tag -a "$tag_name" -m "Release $tag_name."
+      do_or_dryrun git push origin "$branch_name" --quiet
+      do_or_dryrun git push origin --quiet --force "$tag_name" --tags
+
+      echo "Release complete ($tag_name) on branch $branch_name."
+    fi
+
     do_or_dryrun git push origin "$branch_name" --quiet
     do_or_dryrun git push origin --quiet --force "$tag_name" --tags
 
     echo "Release complete ($tag_name) on branch $branch_name."
-  fi
-
-  do_or_dryrun git push origin "$branch_name" --quiet
-  do_or_dryrun git push origin --quiet --force "$tag_name" --tags
-
-  echo "Release complete ($tag_name) on branch $branch_name."
+  )
 }
 
 function coverage {
@@ -506,10 +514,18 @@ function release_l1_artifacts_npm {
   echo_header "l1-contracts release l1-artifacts npm"
   local version=${REF_NAME#v}
 
+  # dest/ and the bundled foundry subtree are gitignored build outputs left in the working tree by
+  # the build phase (build_artifacts). Fail clearly if they are absent rather than publishing a
+  # broken package or erroring deep inside the sed below.
+  local bundle="l1-artifacts/l1-contracts"
+  if [ ! -f "$bundle/foundry.toml" ]; then
+    echo_stderr "l1-artifacts foundry bundle missing ($bundle/foundry.toml); was build_artifacts run?"
+    exit 1
+  fi
+
   # Strip the platform-specific solc binary from the bundled foundry copy before npm publish, and
   # rewrite solc="./solc-X.Y.Z" to solc_version="X.Y.Z" so forge auto-downloads the correct binary
   # via SVM on the end-user's machine.
-  local bundle="l1-artifacts/l1-contracts"
   rm -f "$bundle"/solc-*
   sed -i 's|^solc = "\./solc-\(.*\)"|solc_version = "\1"|' "$bundle/foundry.toml"
 
