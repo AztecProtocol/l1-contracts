@@ -20,8 +20,8 @@ trap cleanup EXIT
 # Clean stale broadcast artifacts from previous runs to avoid nonce conflicts.
 rm -rf broadcast/
 
-# Use a random port to avoid conflicts with other anvil instances.
-ANVIL_PORT="${ANVIL_PORT:-$(shuf -i 10000-60000 -n 1)}"
+# Fixed port — this test runs with ISOLATE=1 so no conflicts.
+ANVIL_PORT="${ANVIL_PORT:-8545}"
 
 echo "=== Starting anvil on port $ANVIL_PORT ==="
 anvil --port "$ANVIL_PORT" &
@@ -51,8 +51,9 @@ if [[ -z "$registry_address" || "$registry_address" == "null" ]]; then
 fi
 
 echo "=== Testing run_rollup_upgrade.sh ==="
-# Use a different genesis to get a different rollup version
-export GENESIS_ARCHIVE_ROOT="0x$(openssl rand -hex 32)"
+# Use a different genesis to get a different rollup version. Only 31 random bytes (top byte zero) so the value is
+# always below the BN254 scalar field modulus; the rollup rejects a genesis archive root >= the field modulus.
+export GENESIS_ARCHIVE_ROOT="0x00$(openssl rand -hex 31)"
 
 ./scripts/run_rollup_upgrade.sh "$registry_address"
 

@@ -210,6 +210,16 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
     return StakingLib.getStorage().slasher;
   }
 
+  function getPendingSlasher() external view override(IStaking) returns (address slasher, Timestamp readyAt) {
+    slasher = StakingLib.getStorage().pendingSlasher;
+    readyAt = StakingLib.getStorage().pendingSlasherReadyAt.decompress();
+  }
+
+  function getLegacySlasher() external view override(IStaking) returns (address slasher, Timestamp authorizedUntil) {
+    slasher = StakingLib.getStorage().legacySlasher;
+    authorizedUntil = StakingLib.getStorage().legacySlasherAuthorizedUntil.decompress();
+  }
+
   function getLocalEjectionThreshold() external view override(IStaking) returns (uint256) {
     return StakingLib.getStorage().localEjectionThreshold;
   }
@@ -282,16 +292,15 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
    * @param  _start - The start of the epoch (inclusive)
    * @param  _end - The end of the epoch (inclusive)
    * @param  _args - Array of public inputs to the proof (previousArchive, endArchive, endTimestamp, outHash, proverId)
-   * @param  _fees - Array of recipient-value pairs with fees to be distributed for the epoch
    */
   function getEpochProofPublicInputs(
     uint256 _start,
     uint256 _end,
     PublicInputArgs calldata _args,
-    bytes32[] calldata _fees,
+    ProposedHeader[] calldata _headers,
     bytes calldata _blobPublicInputs
   ) external view override(IRollup) returns (bytes32[] memory) {
-    return RollupOperationsExtLib.getEpochProofPublicInputs(_start, _end, _args, _fees, _blobPublicInputs);
+    return RollupOperationsExtLib.getEpochProofPublicInputs(_start, _end, _args, _headers, _blobPublicInputs);
   }
 
   /**
@@ -550,6 +559,18 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
     return STFLib.getStorage().config.feeAssetPortal;
   }
 
+  function getVkTreeRoot() external view override(IRollup) returns (bytes32) {
+    return STFLib.getStorage().config.vkTreeRoot;
+  }
+
+  function getProtocolContractsHash() external view override(IRollup) returns (bytes32) {
+    return STFLib.getStorage().config.protocolContractsHash;
+  }
+
+  function getEpochProofVerifier() external view override(IRollup) returns (IVerifier) {
+    return STFLib.getStorage().config.epochProofVerifier;
+  }
+
   function getRewardDistributor() external view override(IRollup) returns (IRewardDistributor) {
     return RewardExtLib.getRewardDistributor();
   }
@@ -570,14 +591,6 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
     return RewardExtLib.getCheckpointReward();
   }
 
-  function isRewardsClaimable() external view override(IRollup) returns (bool) {
-    return RewardExtLib.isRewardsClaimable();
-  }
-
-  function getEarliestRewardsClaimableTimestamp() external view override(IRollup) returns (Timestamp) {
-    return RewardExtLib.getEarliestRewardsClaimableTimestamp();
-  }
-
   function getAvailableValidatorFlushes() external view override(IStaking) returns (uint256) {
     return ValidatorOperationsExtLib.getAvailableValidatorFlushes();
   }
@@ -588,6 +601,14 @@ contract Rollup is IStaking, IValidatorSelection, IRollup, RollupCore {
 
   function getEntryQueueAt(uint256 _index) external view override(IStaking) returns (DepositArgs memory) {
     return ValidatorOperationsExtLib.getEntryQueueAt(_index);
+  }
+
+  function getSlasherExecutionDelay() external pure override(IStaking) returns (uint256) {
+    return StakingLib.SLASHER_EXECUTION_DELAY;
+  }
+
+  function getLegacySlasherDrainWindow() external pure override(IStaking) returns (uint256) {
+    return StakingLib.LEGACY_SLASHER_DRAIN_WINDOW;
   }
 
   function getBurnAddress() external pure override(IRollup) returns (address) {
