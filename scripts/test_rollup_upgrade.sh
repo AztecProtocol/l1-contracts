@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Test rollup upgrade deployment on local anvil with the base l1-contracts defaults.
+# Test rollup upgrade deployment on local anvil with devnet defaults.
 
 cd "$(dirname "$0")/.."
 
-echo "=== Loading L1 contract defaults ==="
-source ./scripts/load_network_defaults.sh
+echo "=== Loading devnet defaults ==="
+source ./scripts/load_network_defaults.sh devnet
 
 cleanup() {
   if [[ -n "${anvil_pid:-}" ]]; then
