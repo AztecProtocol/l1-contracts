@@ -1,0 +1,4 @@
+@oz/=node_modules/@openzeppelin/contracts
+forge-std/=node_modules/forge-std/src/
+@aztec/=src
+@test/=test
