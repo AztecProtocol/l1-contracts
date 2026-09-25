@@ -17,7 +17,7 @@ uint256 constant NUMBER_UNSHIFTED = 36;
 uint256 constant NUMBER_TO_BE_SHIFTED = 5;
 uint256 constant PAIRING_POINTS_SIZE = 8;
 
-uint256 constant VK_HASH = 0x1c402774c68364f9d83168357306f0374fe1fa4703108a42119fc4438be58ccc;
+uint256 constant VK_HASH = 0x2f0ca3e610369fc41f7fb8a69995a96428fbf69d7dffd2b576e63ba4d9511ee1;
 uint256 constant CIRCUIT_SIZE = 16777216;
 uint256 constant LOG_N = 24;
 uint256 constant NUMBER_PUBLIC_INPUTS = 119;
@@ -78,60 +78,60 @@ uint256 internal constant VK_NUM_PUBLIC_INPUTS_LOC = 0x1020;
 uint256 internal constant VK_PUB_INPUTS_OFFSET_LOC = 0x1040;
 uint256 internal constant Q_M_X_LOC = 0x1060;
 uint256 internal constant Q_M_Y_LOC = 0x1080;
-uint256 internal constant Q_C_X_LOC = 0x10a0;
-uint256 internal constant Q_C_Y_LOC = 0x10c0;
-uint256 internal constant Q_L_X_LOC = 0x10e0;
-uint256 internal constant Q_L_Y_LOC = 0x1100;
-uint256 internal constant Q_R_X_LOC = 0x1120;
-uint256 internal constant Q_R_Y_LOC = 0x1140;
-uint256 internal constant Q_O_X_LOC = 0x1160;
-uint256 internal constant Q_O_Y_LOC = 0x1180;
-uint256 internal constant Q_4_X_LOC = 0x11a0;
-uint256 internal constant Q_4_Y_LOC = 0x11c0;
-uint256 internal constant Q_LOOKUP_X_LOC = 0x11e0;
-uint256 internal constant Q_LOOKUP_Y_LOC = 0x1200;
-uint256 internal constant Q_ARITH_X_LOC = 0x1220;
-uint256 internal constant Q_ARITH_Y_LOC = 0x1240;
-uint256 internal constant Q_DELTA_RANGE_X_LOC = 0x1260;
-uint256 internal constant Q_DELTA_RANGE_Y_LOC = 0x1280;
-uint256 internal constant Q_ELLIPTIC_X_LOC = 0x12a0;
-uint256 internal constant Q_ELLIPTIC_Y_LOC = 0x12c0;
-uint256 internal constant Q_MEMORY_X_LOC = 0x12e0;
-uint256 internal constant Q_MEMORY_Y_LOC = 0x1300;
-uint256 internal constant Q_NNF_X_LOC = 0x1320;
-uint256 internal constant Q_NNF_Y_LOC = 0x1340;
-uint256 internal constant Q_POSEIDON_2_EXTERNAL_X_LOC = 0x1360;
-uint256 internal constant Q_POSEIDON_2_EXTERNAL_Y_LOC = 0x1380;
-uint256 internal constant Q_POSEIDON_2_INTERNAL_X_LOC = 0x13a0;
-uint256 internal constant Q_POSEIDON_2_INTERNAL_Y_LOC = 0x13c0;
-uint256 internal constant SIGMA_1_X_LOC = 0x13e0;
-uint256 internal constant SIGMA_1_Y_LOC = 0x1400;
-uint256 internal constant SIGMA_2_X_LOC = 0x1420;
-uint256 internal constant SIGMA_2_Y_LOC = 0x1440;
-uint256 internal constant SIGMA_3_X_LOC = 0x1460;
-uint256 internal constant SIGMA_3_Y_LOC = 0x1480;
-uint256 internal constant SIGMA_4_X_LOC = 0x14a0;
-uint256 internal constant SIGMA_4_Y_LOC = 0x14c0;
-uint256 internal constant ID_1_X_LOC = 0x14e0;
-uint256 internal constant ID_1_Y_LOC = 0x1500;
-uint256 internal constant ID_2_X_LOC = 0x1520;
-uint256 internal constant ID_2_Y_LOC = 0x1540;
-uint256 internal constant ID_3_X_LOC = 0x1560;
-uint256 internal constant ID_3_Y_LOC = 0x1580;
-uint256 internal constant ID_4_X_LOC = 0x15a0;
-uint256 internal constant ID_4_Y_LOC = 0x15c0;
-uint256 internal constant TABLE_1_X_LOC = 0x15e0;
-uint256 internal constant TABLE_1_Y_LOC = 0x1600;
-uint256 internal constant TABLE_2_X_LOC = 0x1620;
-uint256 internal constant TABLE_2_Y_LOC = 0x1640;
-uint256 internal constant TABLE_3_X_LOC = 0x1660;
-uint256 internal constant TABLE_3_Y_LOC = 0x1680;
-uint256 internal constant TABLE_4_X_LOC = 0x16a0;
-uint256 internal constant TABLE_4_Y_LOC = 0x16c0;
-uint256 internal constant LAGRANGE_FIRST_X_LOC = 0x16e0;
-uint256 internal constant LAGRANGE_FIRST_Y_LOC = 0x1700;
-uint256 internal constant LAGRANGE_LAST_X_LOC = 0x1720;
-uint256 internal constant LAGRANGE_LAST_Y_LOC = 0x1740;
+uint256 internal constant Q_L_X_LOC = 0x10a0;
+uint256 internal constant Q_L_Y_LOC = 0x10c0;
+uint256 internal constant Q_R_X_LOC = 0x10e0;
+uint256 internal constant Q_R_Y_LOC = 0x1100;
+uint256 internal constant Q_O_X_LOC = 0x1120;
+uint256 internal constant Q_O_Y_LOC = 0x1140;
+uint256 internal constant Q_4_X_LOC = 0x1160;
+uint256 internal constant Q_4_Y_LOC = 0x1180;
+uint256 internal constant Q_C_X_LOC = 0x11a0;
+uint256 internal constant Q_C_Y_LOC = 0x11c0;
+uint256 internal constant Q_ARITH_X_LOC = 0x11e0;
+uint256 internal constant Q_ARITH_Y_LOC = 0x1200;
+uint256 internal constant SIGMA_1_X_LOC = 0x1220;
+uint256 internal constant SIGMA_1_Y_LOC = 0x1240;
+uint256 internal constant SIGMA_2_X_LOC = 0x1260;
+uint256 internal constant SIGMA_2_Y_LOC = 0x1280;
+uint256 internal constant SIGMA_3_X_LOC = 0x12a0;
+uint256 internal constant SIGMA_3_Y_LOC = 0x12c0;
+uint256 internal constant SIGMA_4_X_LOC = 0x12e0;
+uint256 internal constant SIGMA_4_Y_LOC = 0x1300;
+uint256 internal constant ID_1_X_LOC = 0x1320;
+uint256 internal constant ID_1_Y_LOC = 0x1340;
+uint256 internal constant ID_2_X_LOC = 0x1360;
+uint256 internal constant ID_2_Y_LOC = 0x1380;
+uint256 internal constant ID_3_X_LOC = 0x13a0;
+uint256 internal constant ID_3_Y_LOC = 0x13c0;
+uint256 internal constant ID_4_X_LOC = 0x13e0;
+uint256 internal constant ID_4_Y_LOC = 0x1400;
+uint256 internal constant LAGRANGE_FIRST_X_LOC = 0x1420;
+uint256 internal constant LAGRANGE_FIRST_Y_LOC = 0x1440;
+uint256 internal constant LAGRANGE_LAST_X_LOC = 0x1460;
+uint256 internal constant LAGRANGE_LAST_Y_LOC = 0x1480;
+uint256 internal constant Q_LOOKUP_X_LOC = 0x14a0;
+uint256 internal constant Q_LOOKUP_Y_LOC = 0x14c0;
+uint256 internal constant TABLE_1_X_LOC = 0x14e0;
+uint256 internal constant TABLE_1_Y_LOC = 0x1500;
+uint256 internal constant TABLE_2_X_LOC = 0x1520;
+uint256 internal constant TABLE_2_Y_LOC = 0x1540;
+uint256 internal constant TABLE_3_X_LOC = 0x1560;
+uint256 internal constant TABLE_3_Y_LOC = 0x1580;
+uint256 internal constant TABLE_4_X_LOC = 0x15a0;
+uint256 internal constant TABLE_4_Y_LOC = 0x15c0;
+uint256 internal constant Q_DELTA_RANGE_X_LOC = 0x15e0;
+uint256 internal constant Q_DELTA_RANGE_Y_LOC = 0x1600;
+uint256 internal constant Q_ELLIPTIC_X_LOC = 0x1620;
+uint256 internal constant Q_ELLIPTIC_Y_LOC = 0x1640;
+uint256 internal constant Q_MEMORY_X_LOC = 0x1660;
+uint256 internal constant Q_MEMORY_Y_LOC = 0x1680;
+uint256 internal constant Q_NNF_X_LOC = 0x16a0;
+uint256 internal constant Q_NNF_Y_LOC = 0x16c0;
+uint256 internal constant Q_POSEIDON_2_EXTERNAL_X_LOC = 0x16e0;
+uint256 internal constant Q_POSEIDON_2_EXTERNAL_Y_LOC = 0x1700;
+uint256 internal constant Q_POSEIDON_2_INTERNAL_X_LOC = 0x1720;
+uint256 internal constant Q_POSEIDON_2_INTERNAL_Y_LOC = 0x1740;
 
 /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
 /*                                          PROOF INDICIES                                          */
@@ -360,34 +360,34 @@ uint256 internal constant SUMCHECK_UNIVARIATE_23_7_LOC = 0x3240;
 /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
 /*                              PROOF INDICIES - SUMCHECK EVALUATIONS                               */
 /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
-uint256 internal constant QM_EVAL_LOC = 0x3260;
-uint256 internal constant QC_EVAL_LOC = 0x3280;
-uint256 internal constant QL_EVAL_LOC = 0x32a0;
-uint256 internal constant QR_EVAL_LOC = 0x32c0;
-uint256 internal constant QO_EVAL_LOC = 0x32e0;
-uint256 internal constant Q4_EVAL_LOC = 0x3300;
-uint256 internal constant QLOOKUP_EVAL_LOC = 0x3320;
-uint256 internal constant QARITH_EVAL_LOC = 0x3340;
-uint256 internal constant QRANGE_EVAL_LOC = 0x3360;
-uint256 internal constant QELLIPTIC_EVAL_LOC = 0x3380;
-uint256 internal constant QMEMORY_EVAL_LOC = 0x33a0;
-uint256 internal constant QNNF_EVAL_LOC = 0x33c0;
-uint256 internal constant QPOSEIDON2_EXTERNAL_EVAL_LOC = 0x33e0;
-uint256 internal constant QPOSEIDON2_INTERNAL_EVAL_LOC = 0x3400;
-uint256 internal constant SIGMA1_EVAL_LOC = 0x3420;
-uint256 internal constant SIGMA2_EVAL_LOC = 0x3440;
-uint256 internal constant SIGMA3_EVAL_LOC = 0x3460;
-uint256 internal constant SIGMA4_EVAL_LOC = 0x3480;
-uint256 internal constant ID1_EVAL_LOC = 0x34a0;
-uint256 internal constant ID2_EVAL_LOC = 0x34c0;
-uint256 internal constant ID3_EVAL_LOC = 0x34e0;
-uint256 internal constant ID4_EVAL_LOC = 0x3500;
-uint256 internal constant TABLE1_EVAL_LOC = 0x3520;
-uint256 internal constant TABLE2_EVAL_LOC = 0x3540;
-uint256 internal constant TABLE3_EVAL_LOC = 0x3560;
-uint256 internal constant TABLE4_EVAL_LOC = 0x3580;
-uint256 internal constant LAGRANGE_FIRST_EVAL_LOC = 0x35a0;
-uint256 internal constant LAGRANGE_LAST_EVAL_LOC = 0x35c0;
+uint256 internal constant SIGMA1_EVAL_LOC = 0x3260;
+uint256 internal constant SIGMA2_EVAL_LOC = 0x3280;
+uint256 internal constant SIGMA3_EVAL_LOC = 0x32a0;
+uint256 internal constant SIGMA4_EVAL_LOC = 0x32c0;
+uint256 internal constant ID1_EVAL_LOC = 0x32e0;
+uint256 internal constant ID2_EVAL_LOC = 0x3300;
+uint256 internal constant ID3_EVAL_LOC = 0x3320;
+uint256 internal constant ID4_EVAL_LOC = 0x3340;
+uint256 internal constant LAGRANGE_FIRST_EVAL_LOC = 0x3360;
+uint256 internal constant LAGRANGE_LAST_EVAL_LOC = 0x3380;
+uint256 internal constant QLOOKUP_EVAL_LOC = 0x33a0;
+uint256 internal constant TABLE1_EVAL_LOC = 0x33c0;
+uint256 internal constant TABLE2_EVAL_LOC = 0x33e0;
+uint256 internal constant TABLE3_EVAL_LOC = 0x3400;
+uint256 internal constant TABLE4_EVAL_LOC = 0x3420;
+uint256 internal constant QM_EVAL_LOC = 0x3440;
+uint256 internal constant QR_EVAL_LOC = 0x3460;
+uint256 internal constant QO_EVAL_LOC = 0x3480;
+uint256 internal constant QC_EVAL_LOC = 0x34a0;
+uint256 internal constant QL_EVAL_LOC = 0x34c0;
+uint256 internal constant Q4_EVAL_LOC = 0x34e0;
+uint256 internal constant QARITH_EVAL_LOC = 0x3500;
+uint256 internal constant QRANGE_EVAL_LOC = 0x3520;
+uint256 internal constant QELLIPTIC_EVAL_LOC = 0x3540;
+uint256 internal constant QMEMORY_EVAL_LOC = 0x3560;
+uint256 internal constant QNNF_EVAL_LOC = 0x3580;
+uint256 internal constant QPOSEIDON2_EXTERNAL_EVAL_LOC = 0x35a0;
+uint256 internal constant QPOSEIDON2_INTERNAL_EVAL_LOC = 0x35c0;
 uint256 internal constant W1_EVAL_LOC = 0x35e0;
 uint256 internal constant W2_EVAL_LOC = 0x3600;
 uint256 internal constant W3_EVAL_LOC = 0x3620;
@@ -1526,62 +1526,62 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
             //
             // Although defined at the top of the file, it is used towards the end of the algorithm when batching in the commitment scheme.
             function loadVk() {
-                mstore(Q_L_X_LOC, 0x0844b1f3f3ce523797bb577ea51468cb4c10fd5bb6e8cc8bad59e5b329a2ca4b)
-                mstore(Q_L_Y_LOC, 0x2c693f1c6dd1466abf98cd0a54411c003aafdc00eb7669d16569f688bbfae0f2)
-                mstore(Q_R_X_LOC, 0x2457f224793f587f9d88552d60380525cbc85364fdeab006874ba6aafeb75504)
-                mstore(Q_R_Y_LOC, 0x18301d1e25236e63fc381dac17b71f1d9fa6b6b654fc3dd708516e6ee570b39a)
-                mstore(Q_O_X_LOC, 0x0f64e72f336059481b931cada45906ae6bf19001302e61dd87ee1434b17ae65b)
-                mstore(Q_O_Y_LOC, 0x247950df9838e335aa2c476e9194d14400acb3a7e2332579c1c3ac03c6c69341)
-                mstore(Q_4_X_LOC, 0x0913769450d27fea234542b3c947608f5b6d4d6168192fe0f86232c9dc840fbd)
-                mstore(Q_4_Y_LOC, 0x0191bee6eef9340533ab68524eff56037a790668e6298146b183de4aa46884c9)
-                mstore(Q_M_X_LOC, 0x1c14e5f21402e0d686de60e6a229098ed9bcb1ed7025185a9dafafe184f1b301)
-                mstore(Q_M_Y_LOC, 0x1851649a1b3caf8690c252223335c2534d35e25657aafad2a5faa7eee0513d52)
-                mstore(Q_C_X_LOC, 0x0d3c36041b2944a2b520c93fc0c195213044048586d4ba62f1d9e36e9b4b97cc)
-                mstore(Q_C_Y_LOC, 0x18933b3c2a7bd010776cce9ae2c673e2834f19b01e30abeb33daaa1c719368ad)
+                mstore(Q_L_X_LOC, 0x017a8a0cf3a397ce7756b794ce207dfc776a84b4840c200af82743eed57509bd)
+                mstore(Q_L_Y_LOC, 0x000b1d68189c34958a2e13a63481f8d87bf370138c46a761aaca8a173b03a9d3)
+                mstore(Q_R_X_LOC, 0x1198ceb6897eb5bf185382fd9db5f67c2f42beacab00de0dd999afe5c34ec7db)
+                mstore(Q_R_Y_LOC, 0x1bc9c3e7c7b553aa0249bb5d30a789fdd8adb9f851b27a22a5ee184a7a254692)
+                mstore(Q_O_X_LOC, 0x0557105248ea360bb0f11dbd5caad011fa37dd5ecb7df2f8b18513e3c5098a07)
+                mstore(Q_O_Y_LOC, 0x096c3a3df86035e547d418dc08af89b5a97f4458eecc857f65bb0963b50f9970)
+                mstore(Q_4_X_LOC, 0x0cb7f4d0baab55a4cc5569f75f4bd17576c9c763df44fffff4e1a0ef48295f19)
+                mstore(Q_4_Y_LOC, 0x12b85145d1912e2993f1ce6553b9950eb3cf84e90cf3dcab20f007f4f191589d)
+                mstore(Q_M_X_LOC, 0x2d8a0a581ac18e6939e7e7af80a7d540d1f620e7177df74fe24f558c7b104557)
+                mstore(Q_M_Y_LOC, 0x1fe4782c8244ea17f5f19997f0725e650ac023119d3aecfbee4db3f93ea1ba1c)
+                mstore(Q_C_X_LOC, 0x1c8a93c71eba79121c4d0272d5a4140a36c40be7bf7c7640eb5b6aede0c4e82e)
+                mstore(Q_C_Y_LOC, 0x1cf91310860fabc4e9198abdaa7b3ed64b4b9fb67cc63b5adc6ca2bcbd3253c1)
                 mstore(Q_LOOKUP_X_LOC, 0x240c61ca01a9d4825953d57fb86faac15533fc645dae5893626b1720bef4c8f6)
                 mstore(Q_LOOKUP_Y_LOC, 0x2a4c84ccc7881879778269b15736cf76a4068b1d3bb0e280ebe63a7842508c49)
-                mstore(Q_ARITH_X_LOC, 0x01aef7fd8603861d3b6ea731e0bfab11344e17324daef70786e6a3f6d71d9104)
-                mstore(Q_ARITH_Y_LOC, 0x0c70fef890848c4bbb1353da54a284da94d0d1968aa91dd599fcbffd5f811546)
-                mstore(Q_DELTA_RANGE_X_LOC, 0x03862f8cd5397ab376e3cb558cf7c2e391fd96784b50035407a1e8ebb59674c8)
-                mstore(Q_DELTA_RANGE_Y_LOC, 0x25b20c02a03cda43d502efb8d921b40cadb66e902bff6398ee6f7eb2cebb46c5)
-                mstore(Q_ELLIPTIC_X_LOC, 0x21c4290e2e7bf809270d2bf1f25fd6d73c05c39604f3338b7c866f73b8abdf54)
-                mstore(Q_ELLIPTIC_Y_LOC, 0x2a0ffacf11be4e07dc09c5ecc172480a5253c7c2c8b14b18122b70b1cfd846ea)
-                mstore(Q_MEMORY_X_LOC, 0x1c873d2216343667a387315a6fd881950e4b65c7b8595044265ac13f3b0fee09)
-                mstore(Q_MEMORY_Y_LOC, 0x08f32e99247087ae0b20496c02eed72460f1297c28b5f7d2554bb3b42169ea9f)
-                mstore(Q_NNF_X_LOC, 0x16773c9df74718089426ef16c4d717e0d875be1958b4b955815b2cac852b3aa2)
-                mstore(Q_NNF_Y_LOC, 0x0947b7debc76cf8f6dc6bbeb6678babdb48f80085c660c64cdb55e274d7f59bd)
-                mstore(Q_POSEIDON_2_EXTERNAL_X_LOC, 0x2cd9a5e1d4f75dc6e8990f58907d3d6a0fd45c5cd67297e642a13ae6077e26b5)
-                mstore(Q_POSEIDON_2_EXTERNAL_Y_LOC, 0x0c6fb3260de474eea2e25ec5fa92c73fc441060748d7dcc81578e4ff6ff94c1e)
-                mstore(Q_POSEIDON_2_INTERNAL_X_LOC, 0x0c6ea0af2a059dc6abca89b67b923a9663f1a3a2030dda597b502690cb881a57)
-                mstore(Q_POSEIDON_2_INTERNAL_Y_LOC, 0x0f6a9dce00826bcb1310e0d8bb406e5ac3e009f98f92044784130e661c31c200)
-                mstore(SIGMA_1_X_LOC, 0x12cabe8e354b8012d06c309f627f9b596d1bb452a16931a3accfe65f89f3d7fd)
-                mstore(SIGMA_1_Y_LOC, 0x22f8f5e6c7cccbe668e0ba05a9eb602016f160d14bf48ead1a26d9da65032473)
-                mstore(SIGMA_2_X_LOC, 0x07648f07e65ecbfcf76e1a7ae2022f51fc76fed9e09cc598e5e8aa8c98fbd0aa)
-                mstore(SIGMA_2_Y_LOC, 0x041725ac06e8d7f597b4d4211736769e05e5a9c9d779cfa5616fb2f5270fb59d)
-                mstore(SIGMA_3_X_LOC, 0x22b86ed214beeb1a8501da509ecb31f0cf63eb11a0b27149ec13996616e4e066)
-                mstore(SIGMA_3_Y_LOC, 0x15e8b1597f3cde47479cbc2846cf89b182f40f441326cd9fcf100be52842bf0c)
-                mstore(SIGMA_4_X_LOC, 0x283c608bf43a14ead3a28db66f157315b42cc5c213afe615fbfd76594a41468c)
-                mstore(SIGMA_4_Y_LOC, 0x068e68a714f68dc7a73be9d122836c35c822b0cd905f8ac7bc9235a98e5b7c50)
+                mstore(Q_ARITH_X_LOC, 0x1d6762984350fdc556daef887e843d0c48ad9b6abba6bb7a32daadfafba9e3d7)
+                mstore(Q_ARITH_Y_LOC, 0x0bea8022cae52ea805ea2453efbf696a9b8a346fc98b496c8dc245fe9ac62591)
+                mstore(Q_DELTA_RANGE_X_LOC, 0x1cf67109fd502f661c92fdb1f4f73b6a1068bf5f0bab6ce2d606fbccbfff1d22)
+                mstore(Q_DELTA_RANGE_Y_LOC, 0x05311ac817e970a0d2b9f8300bb5928a7bfdf95ed29b2f1da5ba08185fc3da86)
+                mstore(Q_ELLIPTIC_X_LOC, 0x0ec16681196c2d137b00078695601906af1c60a47f04f75c26224256e9e0963e)
+                mstore(Q_ELLIPTIC_Y_LOC, 0x1a2a0528b7d4c19adfcc974fa0531311a7e7934d65798705582eb5fcd42dded1)
+                mstore(Q_MEMORY_X_LOC, 0x20588c1fa5935f23278d006804a78fb7830b4609665b901291dae8588ed8891f)
+                mstore(Q_MEMORY_Y_LOC, 0x24f783d3b24e1d26712bf598f580deae90ef70ec78b097e10612e1b162f2bff9)
+                mstore(Q_NNF_X_LOC, 0x149d8ac87dc66f73f91d298c338332cc2015b4b79bc7a960fa9176c463da2704)
+                mstore(Q_NNF_Y_LOC, 0x07bd36e609f9c695ae51065a0ac0dc2d601c1fcb771f7767b012b0fce84646b5)
+                mstore(Q_POSEIDON_2_EXTERNAL_X_LOC, 0x1a91ab71218d3010556e443c181471fcf83e00a3cc81f944259037777b212a9f)
+                mstore(Q_POSEIDON_2_EXTERNAL_Y_LOC, 0x2af8ae980d3fd0fde23ffef59b1a4d991375b850c5a9463867453a7cd3850ee0)
+                mstore(Q_POSEIDON_2_INTERNAL_X_LOC, 0x02cc26c0ce63be81d3f53b06aaa90cfac5b1cfc925b25a835af9369dca819ae0)
+                mstore(Q_POSEIDON_2_INTERNAL_Y_LOC, 0x02d94c7a87d26c97a92d67ab0f6bb320a11a65a9129431d5dce11e3aa37ad700)
+                mstore(SIGMA_1_X_LOC, 0x1d48dccf1c179d23528264773bfc39ee28b9f91ac57eb242a2fad7d721b21393)
+                mstore(SIGMA_1_Y_LOC, 0x0e77686b0597e42ca7293b93a15d654e57c75053abe0bec01789cf633f26ebb5)
+                mstore(SIGMA_2_X_LOC, 0x0f9b447eeb4285e715dbdc8d42f2f856165f666cd9720b7c772291d2d3563803)
+                mstore(SIGMA_2_Y_LOC, 0x157423173855e0b30e65b033bfd06fe6e660ac6123f6f7b4d38eae12a7175241)
+                mstore(SIGMA_3_X_LOC, 0x28919740422e36ab96f10f2559851daf51c9a7cb0e77a49cfc4fd9af501d7789)
+                mstore(SIGMA_3_Y_LOC, 0x21f2abf738927e842de9363f1b9b4718f9ea8de517a1241bcad3681a4acde43f)
+                mstore(SIGMA_4_X_LOC, 0x0d29ed188cf2ba817d1d0f41533b08c1f92aecca31052637c6220774d83c760e)
+                mstore(SIGMA_4_Y_LOC, 0x0b8ed0ab98b1236524380a8fce7b75a9bb84ea8e7d3f27bdb61903a40ea41337)
                 mstore(TABLE_1_X_LOC, 0x290fb60f4114fa50e92897a66d9a86b7e1c60e6f84a4df2dc1d020da1537bab8)
                 mstore(TABLE_1_Y_LOC, 0x087bcd143b8021cae339bd062d6d837a34a3a502e6eaf2326a765d0703d31c01)
                 mstore(TABLE_2_X_LOC, 0x22e84aa48f8510653f8f7b7c9c8fa3ab838de294018587a7587990e0b1f92e8d)
                 mstore(TABLE_2_Y_LOC, 0x0ed854b35b0c13c96ef3b3071676b3524a1aa3fb28791d3d908840a5d1765872)
                 mstore(TABLE_3_X_LOC, 0x2be3b503e1119c1b4d7545a1ac3b10b9f82ed04da805bd4242f30aac7a03b8f8)
                 mstore(TABLE_3_Y_LOC, 0x0f45d075a4f5045b58c0084bf7abac45fd1def643fb0dc0479d534c0afa1a371)
-                mstore(TABLE_4_X_LOC, 0x0062938b54cd25ea97caa7befde407ef00ac024bf57a0233cd9f788547efc978)
-                mstore(TABLE_4_Y_LOC, 0x14a352f69b14198e8aaca710b488491bdd80cad250f91480d9f8088917298e85)
-                mstore(ID_1_X_LOC, 0x2950b38ce225ab1bfc3362e32a60e49647d3f6ccc9a9b7963882bedf92e13f26)
-                mstore(ID_1_Y_LOC, 0x20830060a9d49506960606484e96d2a9d62d8bb3ac9a011be374b03812d086d7)
-                mstore(ID_2_X_LOC, 0x1a4ee85adfff14c0941293da3441c2460f50e121df7d86879dc9987ae9acfb20)
-                mstore(ID_2_Y_LOC, 0x141949e0b9987380fd71215d58b26b61e4f9d2b1c6262903b2694c65664719ca)
-                mstore(ID_3_X_LOC, 0x190b134ce69a49ea61c6bf36e322a4a92ed1e6f58032919b13ae10f61b09e67b)
-                mstore(ID_3_Y_LOC, 0x1bd6d25a2657fee7c36d4d15c65306c012bc3825f769eacac9c8c7ede39c6e59)
-                mstore(ID_4_X_LOC, 0x013779e17b748fcf14f7dac626e74f2f58db4798ff6ccac71f3f22ac8ca7377f)
-                mstore(ID_4_Y_LOC, 0x22fc1eabda6370b0a48acd4e1c3563da250eee43c12e1c42de0e5b2de155d1a0)
+                mstore(TABLE_4_X_LOC, 0x2b4d0112219c6226700ca100a7d27041173ba6ae9f0dcd977df77401d7024afe)
+                mstore(TABLE_4_Y_LOC, 0x2da309999fbd4c76c28ddde2da2b34231b220013cbab34646c4ea3009fc10ac9)
+                mstore(ID_1_X_LOC, 0x29f14e4c60fd58035b68f2be26a5dcea1c3ad5fc3868d993adeddcac9498050b)
+                mstore(ID_1_Y_LOC, 0x19a254472a10d0e40e4fead233818b6de94b4fcab014024a76ce3264002edefa)
+                mstore(ID_2_X_LOC, 0x1ade6820202a78e54d0cb4efa6d2bd5f4adcdeb540846a592e36fc63c70cff1b)
+                mstore(ID_2_Y_LOC, 0x05ab5d398f3133326f329ae0f879278a66e69e81b196e237783c473c9d1303c5)
+                mstore(ID_3_X_LOC, 0x00b123a85cfe234991ef02f69b53f3c9883b6ac538882dcbbbb5a0f12b6e92c3)
+                mstore(ID_3_Y_LOC, 0x2ae7702684c2041e013b0ac1c8262ed40a191492f9faee8603bfe9ed903a426e)
+                mstore(ID_4_X_LOC, 0x01a83b27ff04eace4c79d9e60dc762b5781968d615a57436286379c83e4260fa)
+                mstore(ID_4_Y_LOC, 0x2771df16d8b5458b2820a44053f1f7f994ca87a927ed7282a71730c80e759ed9)
                 mstore(LAGRANGE_FIRST_X_LOC, 0x2a56ce41f6b0be13b9c26747621b821eee81b23a887f299049b14c11e98460d6)
                 mstore(LAGRANGE_FIRST_Y_LOC, 0x1aa98f2de3ddda547d8f6de4e725ded5827d6338c78656c0d12ca1aea6ef2c7c)
-                mstore(LAGRANGE_LAST_X_LOC, 0x23f14331c966aabdf52b2e46388e79258c53970b38c3e092db579a3af155b5e8)
-                mstore(LAGRANGE_LAST_Y_LOC, 0x23b0b07bbfb0d652b8a36f5355ec5d0117dafc86b0becca758ae1622cd4689a6)
+                mstore(LAGRANGE_LAST_X_LOC, 0x1786179d723e6f94e6b65beec4a94e2cb1f36946e74d70b4e186ca051e8c2b16)
+                mstore(LAGRANGE_LAST_Y_LOC, 0x132ed90a46a33fbf9d0748162a877c8e6a0428d714bae03ce03d8847ab10b844)
             }
 
             // Prime field order - placing on the stack
@@ -1835,7 +1835,7 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                 // 8 points are sent as it is enough to uniquely identify the polynomial
                 let read_off := SUMCHECK_UNIVARIATE_0_0_LOC
                 let write_off := SUM_U_CHALLENGE_0
-                for {} lt(read_off, QM_EVAL_LOC) {} {
+                for {} lt(read_off, SIGMA1_EVAL_LOC) {} {
                     // Increase by 20 * batched relation length (8)
                     // 0x20 * 0x8 = 0x100
                     mcopy(0x20, read_off, 0x100)
@@ -1900,7 +1900,7 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                 //
                 // Hash of all of the above evaluations
                 // Number of bytes to copy = 0x20 * NUMBER_OF_ENTITIES (41) = 0x520
-                mcopy(0x20, QM_EVAL_LOC, 0x520)
+                mcopy(0x20, SIGMA1_EVAL_LOC, 0x520)
                 prev_challenge := mod(keccak256(0x00, 0x540), p)
                 mstore(0x00, prev_challenge)
 
@@ -3487,12 +3487,12 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     let contribution_0 :=
                         addmod(identity, mulmod(addmod(q_arith, sub(p, 1), p), mload(W4_SHIFT_EVAL_LOC), p), p)
                     contribution_0 := mulmod(mulmod(contribution_0, q_arith, p), mload(POW_PARTIAL_EVALUATION_LOC), p)
-                    mstore(SUBRELATION_EVAL_0_LOC, contribution_0)
+                    mstore(SUBRELATION_EVAL_6_LOC, contribution_0)
 
                     let contribution_1 := mulmod(extra_small_addition_gate_identity, addmod(q_arith, sub(p, 1), p), p)
                     contribution_1 := mulmod(contribution_1, q_arith, p)
                     contribution_1 := mulmod(contribution_1, mload(POW_PARTIAL_EVALUATION_LOC), p)
-                    mstore(SUBRELATION_EVAL_1_LOC, contribution_1)
+                    mstore(SUBRELATION_EVAL_7_LOC, contribution_1)
                 }
 
                 /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -3561,14 +3561,14 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                         )
 
                         acc := mulmod(acc, mload(POW_PARTIAL_EVALUATION_LOC), p)
-                        mstore(SUBRELATION_EVAL_2_LOC, acc)
+                        mstore(SUBRELATION_EVAL_0_LOC, acc)
 
                         acc := mulmod(
                             mulmod(mload(LAGRANGE_LAST_EVAL_LOC), mload(Z_PERM_SHIFT_EVAL_LOC), p),
                             mload(POW_PARTIAL_EVALUATION_LOC),
                             p
                         )
-                        mstore(SUBRELATION_EVAL_3_LOC, acc)
+                        mstore(SUBRELATION_EVAL_1_LOC, acc)
                     }
 
                     // Contribution 4: z_perm initialization (lagrange_first * z_perm = 0)
@@ -3578,7 +3578,7 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                             mload(POW_PARTIAL_EVALUATION_LOC),
                             p
                         )
-                        mstore(SUBRELATION_EVAL_4_LOC, acc)
+                        mstore(SUBRELATION_EVAL_2_LOC, acc)
                     }
                 }
 
@@ -3643,9 +3643,9 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     let read_tag_boolean_relation := mulmod(read_tag, addmod(read_tag, sub(p, 1), p), p)
                     read_tag_boolean_relation := mulmod(read_tag_boolean_relation, mload(POW_PARTIAL_EVALUATION_LOC), p)
 
-                    mstore(SUBRELATION_EVAL_5_LOC, accumulator_none)
-                    mstore(SUBRELATION_EVAL_6_LOC, accumulator_one)
-                    mstore(SUBRELATION_EVAL_7_LOC, read_tag_boolean_relation)
+                    mstore(SUBRELATION_EVAL_3_LOC, accumulator_none)
+                    mstore(SUBRELATION_EVAL_4_LOC, accumulator_one)
+                    mstore(SUBRELATION_EVAL_5_LOC, read_tag_boolean_relation)
                 }
 
                 /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -4567,165 +4567,147 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
             //     mem.batchingChallenge = mem.batchingChallenge * tp.rho;
             // }
 
-            // Calculate the scalars and batching challenge for the unshifted entities
-            // 0: QM_EVAL_LOC
+            // Iteration order matches UltraFlavor_Generated::EntityId. Scalar slot N = entity index N + 1
+            // pairs with vk[N] in the batchMul block below.
+
+            // 0: SIGMA1_EVAL_LOC
             mstore(BATCH_SCALAR_1_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QM_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 1: QC_EVAL_LOC
-            mstore(BATCH_SCALAR_2_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QC_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 2: QL_EVAL_LOC
-            mstore(BATCH_SCALAR_3_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QL_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 3: QR_EVAL_LOC
-            mstore(BATCH_SCALAR_4_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QR_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 4: QO_EVAL_LOC
-            mstore(BATCH_SCALAR_5_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QO_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 5: Q4_EVAL_LOC
-            mstore(BATCH_SCALAR_6_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(Q4_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 6: QLOOKUP_EVAL_LOC
-            mstore(BATCH_SCALAR_7_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QLOOKUP_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 7: QARITH_EVAL_LOC
-            mstore(BATCH_SCALAR_8_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QARITH_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 8: QRANGE_EVAL_LOC
-            mstore(BATCH_SCALAR_9_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QRANGE_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 9: QELLIPTIC_EVAL_LOC
-            mstore(BATCH_SCALAR_10_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(QELLIPTIC_EVAL_LOC), batching_challenge, p),
-                p
-            )
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 10: QMEMORY_EVAL_LOC
-            mstore(BATCH_SCALAR_11_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QMEMORY_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 11: QNNF_EVAL_LOC
-            mstore(BATCH_SCALAR_12_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QNNF_EVAL_LOC), batching_challenge, p), p)
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 12: QPOSEIDON2_EXTERNAL_EVAL_LOC
-            mstore(BATCH_SCALAR_13_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(QPOSEIDON2_EXTERNAL_EVAL_LOC), batching_challenge, p),
-                p
-            )
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 13: QPOSEIDON2_INTERNAL_EVAL_LOC
-            mstore(BATCH_SCALAR_14_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(QPOSEIDON2_INTERNAL_EVAL_LOC), batching_challenge, p),
-                p
-            )
-            batching_challenge := mulmod(batching_challenge, rho, p)
-
-            // 14: SIGMA1_EVAL_LOC
-            mstore(BATCH_SCALAR_15_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(SIGMA1_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 15: SIGMA2_EVAL_LOC
-            mstore(BATCH_SCALAR_16_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 1: SIGMA2_EVAL_LOC
+            mstore(BATCH_SCALAR_2_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(SIGMA2_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 16: SIGMA3_EVAL_LOC
-            mstore(BATCH_SCALAR_17_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 2: SIGMA3_EVAL_LOC
+            mstore(BATCH_SCALAR_3_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(SIGMA3_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 17: SIGMA4_EVAL_LOC
-            mstore(BATCH_SCALAR_18_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 3: SIGMA4_EVAL_LOC
+            mstore(BATCH_SCALAR_4_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(SIGMA4_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 18: ID1_EVAL_LOC
-            mstore(BATCH_SCALAR_19_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 4: ID1_EVAL_LOC
+            mstore(BATCH_SCALAR_5_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(ID1_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 19: ID2_EVAL_LOC
-            mstore(BATCH_SCALAR_20_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 5: ID2_EVAL_LOC
+            mstore(BATCH_SCALAR_6_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(ID2_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 20: ID3_EVAL_LOC
-            mstore(BATCH_SCALAR_21_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 6: ID3_EVAL_LOC
+            mstore(BATCH_SCALAR_7_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(ID3_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 21: ID4_EVAL_LOC
-            mstore(BATCH_SCALAR_22_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 7: ID4_EVAL_LOC
+            mstore(BATCH_SCALAR_8_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(ID4_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 22: TABLE1_EVAL_LOC
-            mstore(BATCH_SCALAR_23_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 8: LAGRANGE_FIRST_EVAL_LOC
+            mstore(BATCH_SCALAR_9_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(LAGRANGE_FIRST_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 9: LAGRANGE_LAST_EVAL_LOC
+            mstore(BATCH_SCALAR_10_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(LAGRANGE_LAST_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 10: QLOOKUP_EVAL_LOC
+            mstore(BATCH_SCALAR_11_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QLOOKUP_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 11: TABLE1_EVAL_LOC
+            mstore(BATCH_SCALAR_12_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(TABLE1_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 23: TABLE2_EVAL_LOC
-            mstore(BATCH_SCALAR_24_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 12: TABLE2_EVAL_LOC
+            mstore(BATCH_SCALAR_13_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(TABLE2_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 24: TABLE3_EVAL_LOC
-            mstore(BATCH_SCALAR_25_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 13: TABLE3_EVAL_LOC
+            mstore(BATCH_SCALAR_14_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(TABLE3_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 25: TABLE4_EVAL_LOC
-            mstore(BATCH_SCALAR_26_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            // 14: TABLE4_EVAL_LOC
+            mstore(BATCH_SCALAR_15_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
             batched_evaluation := addmod(batched_evaluation, mulmod(mload(TABLE4_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 26: LAGRANGE_FIRST_EVAL_LOC
-            mstore(BATCH_SCALAR_27_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(LAGRANGE_FIRST_EVAL_LOC), batching_challenge, p),
-                p
-            )
+            // 15: QM_EVAL_LOC
+            mstore(BATCH_SCALAR_16_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QM_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
-            // 27: LAGRANGE_LAST_EVAL_LOC
+            // 16: QR_EVAL_LOC
+            mstore(BATCH_SCALAR_17_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QR_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 17: QO_EVAL_LOC
+            mstore(BATCH_SCALAR_18_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QO_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 18: QC_EVAL_LOC
+            mstore(BATCH_SCALAR_19_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QC_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 19: QL_EVAL_LOC
+            mstore(BATCH_SCALAR_20_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QL_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 20: Q4_EVAL_LOC
+            mstore(BATCH_SCALAR_21_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(Q4_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 21: QARITH_EVAL_LOC
+            mstore(BATCH_SCALAR_22_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QARITH_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 22: QRANGE_EVAL_LOC
+            mstore(BATCH_SCALAR_23_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QRANGE_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 23: QELLIPTIC_EVAL_LOC
+            mstore(BATCH_SCALAR_24_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QELLIPTIC_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 24: QMEMORY_EVAL_LOC
+            mstore(BATCH_SCALAR_25_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QMEMORY_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 25: QNNF_EVAL_LOC
+            mstore(BATCH_SCALAR_26_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QNNF_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 26: QPOSEIDON2_EXTERNAL_EVAL_LOC
+            mstore(BATCH_SCALAR_27_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QPOSEIDON2_EXTERNAL_EVAL_LOC), batching_challenge, p), p)
+            batching_challenge := mulmod(batching_challenge, rho, p)
+
+            // 27: QPOSEIDON2_INTERNAL_EVAL_LOC
             mstore(BATCH_SCALAR_28_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(LAGRANGE_LAST_EVAL_LOC), batching_challenge, p),
-                p
-            )
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(QPOSEIDON2_INTERNAL_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
             // 28: W1_EVAL_LOC
@@ -4755,29 +4737,17 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
 
             // 33: LOOKUP_INVERSES_EVAL_LOC
             mstore(BATCH_SCALAR_34_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(LOOKUP_INVERSES_EVAL_LOC), batching_challenge, p),
-                p
-            )
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(LOOKUP_INVERSES_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
             // 34: LOOKUP_READ_COUNTS_EVAL_LOC
             mstore(BATCH_SCALAR_35_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(LOOKUP_READ_COUNTS_EVAL_LOC), batching_challenge, p),
-                p
-            )
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(LOOKUP_READ_COUNTS_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
             // 35: LOOKUP_READ_TAGS_EVAL_LOC
             mstore(BATCH_SCALAR_36_LOC, mulmod(neg_unshifted_scalar, batching_challenge, p))
-            batched_evaluation := addmod(
-                batched_evaluation,
-                mulmod(mload(LOOKUP_READ_TAGS_EVAL_LOC), batching_challenge, p),
-                p
-            )
+            batched_evaluation := addmod(batched_evaluation, mulmod(mload(LOOKUP_READ_TAGS_EVAL_LOC), batching_challenge, p), p)
             batching_challenge := mulmod(batching_challenge, rho, p)
 
             // Unrolled for NUMBER_OF_SHIFTED_ENTITIES = 5
@@ -4933,8 +4903,9 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
             // Accumulate vk points
             loadVk()
             {
-                // Accumulator = accumulator + scalar[1] * vk[0]
-                mcopy(G1_LOCATION, Q_M_X_LOC, 0x40)
+                // VK batchMul order matches UltraFlavor_Generated::EntityId precomputed layout.
+                // Accumulator = accumulator + scalar[1] * vk[0] (sigma_1)
+                mcopy(G1_LOCATION, SIGMA_1_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_1_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -4945,8 +4916,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[2] * vk[1]
-                mcopy(G1_LOCATION, Q_C_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[2] * vk[1] (sigma_2)
+                mcopy(G1_LOCATION, SIGMA_2_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_2_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -4957,8 +4928,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[3] * vk[2]
-                mcopy(G1_LOCATION, Q_L_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[3] * vk[2] (sigma_3)
+                mcopy(G1_LOCATION, SIGMA_3_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_3_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -4969,8 +4940,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[4] * vk[3]
-                mcopy(G1_LOCATION, Q_R_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[4] * vk[3] (sigma_4)
+                mcopy(G1_LOCATION, SIGMA_4_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_4_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -4981,8 +4952,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[5] * vk[4]
-                mcopy(G1_LOCATION, Q_O_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[5] * vk[4] (id_1)
+                mcopy(G1_LOCATION, ID_1_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_5_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -4993,8 +4964,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[6] * vk[5]
-                mcopy(G1_LOCATION, Q_4_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[6] * vk[5] (id_2)
+                mcopy(G1_LOCATION, ID_2_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_6_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5005,8 +4976,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[7] * vk[6]
-                mcopy(G1_LOCATION, Q_LOOKUP_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[7] * vk[6] (id_3)
+                mcopy(G1_LOCATION, ID_3_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_7_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5017,8 +4988,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[8] * vk[7]
-                mcopy(G1_LOCATION, Q_ARITH_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[8] * vk[7] (id_4)
+                mcopy(G1_LOCATION, ID_4_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_8_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5029,8 +5000,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[9] * vk[8]
-                mcopy(G1_LOCATION, Q_DELTA_RANGE_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[9] * vk[8] (lagrange_first)
+                mcopy(G1_LOCATION, LAGRANGE_FIRST_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_9_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5041,8 +5012,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[10] * vk[9]
-                mcopy(G1_LOCATION, Q_ELLIPTIC_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[10] * vk[9] (lagrange_last)
+                mcopy(G1_LOCATION, LAGRANGE_LAST_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_10_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5053,8 +5024,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[11] * vk[10]
-                mcopy(G1_LOCATION, Q_MEMORY_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[11] * vk[10] (q_lookup)
+                mcopy(G1_LOCATION, Q_LOOKUP_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_11_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5065,8 +5036,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[12] * vk[11]
-                mcopy(G1_LOCATION, Q_NNF_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[12] * vk[11] (table_1)
+                mcopy(G1_LOCATION, TABLE_1_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_12_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5077,8 +5048,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[13] * vk[12]
-                mcopy(G1_LOCATION, Q_POSEIDON_2_EXTERNAL_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[13] * vk[12] (table_2)
+                mcopy(G1_LOCATION, TABLE_2_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_13_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5089,8 +5060,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[14] * vk[13]
-                mcopy(G1_LOCATION, Q_POSEIDON_2_INTERNAL_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[14] * vk[13] (table_3)
+                mcopy(G1_LOCATION, TABLE_3_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_14_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5101,8 +5072,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[15] * vk[14]
-                mcopy(G1_LOCATION, SIGMA_1_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[15] * vk[14] (table_4)
+                mcopy(G1_LOCATION, TABLE_4_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_15_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5113,8 +5084,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[16] * vk[15]
-                mcopy(G1_LOCATION, SIGMA_2_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[16] * vk[15] (q_m)
+                mcopy(G1_LOCATION, Q_M_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_16_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5125,8 +5096,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[17] * vk[16]
-                mcopy(G1_LOCATION, SIGMA_3_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[17] * vk[16] (q_r)
+                mcopy(G1_LOCATION, Q_R_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_17_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5137,8 +5108,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[18] * vk[17]
-                mcopy(G1_LOCATION, SIGMA_4_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[18] * vk[17] (q_o)
+                mcopy(G1_LOCATION, Q_O_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_18_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5149,8 +5120,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[19] * vk[18]
-                mcopy(G1_LOCATION, ID_1_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[19] * vk[18] (q_c)
+                mcopy(G1_LOCATION, Q_C_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_19_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5161,8 +5132,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[20] * vk[19]
-                mcopy(G1_LOCATION, ID_2_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[20] * vk[19] (q_l)
+                mcopy(G1_LOCATION, Q_L_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_20_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5173,8 +5144,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[21] * vk[20]
-                mcopy(G1_LOCATION, ID_3_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[21] * vk[20] (q_4)
+                mcopy(G1_LOCATION, Q_4_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_21_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5185,8 +5156,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[22] * vk[21]
-                mcopy(G1_LOCATION, ID_4_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[22] * vk[21] (q_arith)
+                mcopy(G1_LOCATION, Q_ARITH_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_22_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5197,8 +5168,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[23] * vk[22]
-                mcopy(G1_LOCATION, TABLE_1_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[23] * vk[22] (q_delta_range)
+                mcopy(G1_LOCATION, Q_DELTA_RANGE_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_23_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5209,8 +5180,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[24] * vk[23]
-                mcopy(G1_LOCATION, TABLE_2_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[24] * vk[23] (q_elliptic)
+                mcopy(G1_LOCATION, Q_ELLIPTIC_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_24_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5221,8 +5192,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[25] * vk[24]
-                mcopy(G1_LOCATION, TABLE_3_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[25] * vk[24] (q_memory)
+                mcopy(G1_LOCATION, Q_MEMORY_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_25_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5233,8 +5204,8 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[26] * vk[25]
-                mcopy(G1_LOCATION, TABLE_4_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[26] * vk[25] (q_nnf)
+                mcopy(G1_LOCATION, Q_NNF_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_26_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
@@ -5245,9 +5216,21 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                     staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
                 )
 
-                // Accumulator = accumulator + scalar[27] * [lagrange_first]
-                mcopy(G1_LOCATION, LAGRANGE_FIRST_X_LOC, 0x40)
+                // Accumulator = accumulator + scalar[27] * vk[26] (q_poseidon2_external)
+                mcopy(G1_LOCATION, Q_POSEIDON_2_EXTERNAL_X_LOC, 0x40)
                 mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_27_LOC))
+                precomp_success_flag := and(
+                    precomp_success_flag,
+                    staticcall(gas(), 7, G1_LOCATION, 0x60, ACCUMULATOR_2, 0x40)
+                )
+                precomp_success_flag := and(
+                    precomp_success_flag,
+                    staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
+                )
+
+                // Accumulator = accumulator + scalar[28] * vk[27] (q_poseidon2_internal)
+                mcopy(G1_LOCATION, Q_POSEIDON_2_INTERNAL_X_LOC, 0x40)
+                mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_28_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
                     staticcall(gas(), 7, G1_LOCATION, 0x60, ACCUMULATOR_2, 0x40)
@@ -5261,18 +5244,6 @@ uint256 internal constant SS_GEMINI_EVALS_LOC = 0x40;
                 mstore(G1_LOCATION, 0x01) // G1 generator x
                 mstore(add(G1_LOCATION, 0x20), 0x02) // G1 generator y
                 mstore(SCALAR_LOCATION, constant_term_acc)
-                precomp_success_flag := and(
-                    precomp_success_flag,
-                    staticcall(gas(), 7, G1_LOCATION, 0x60, ACCUMULATOR_2, 0x40)
-                )
-                precomp_success_flag := and(
-                    precomp_success_flag,
-                    staticcall(gas(), 6, ACCUMULATOR, 0x80, ACCUMULATOR, 0x40)
-                )
-
-                // Accumulator = accumulator + scalar[28] * vk[27]
-                mcopy(G1_LOCATION, LAGRANGE_LAST_X_LOC, 0x40)
-                mstore(SCALAR_LOCATION, mload(BATCH_SCALAR_28_LOC))
                 precomp_success_flag := and(
                     precomp_success_flag,
                     staticcall(gas(), 7, G1_LOCATION, 0x60, ACCUMULATOR_2, 0x40)
